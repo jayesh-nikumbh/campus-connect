@@ -7,7 +7,9 @@ import {
   BarChart2, Award, Users, Briefcase, Bell, Database,
   Settings, LogOut, Search, Moon, Sun, MessageSquare,
   ChevronRight, ChevronLeft, TrendingUp, Plus,
-  QrCode, Megaphone, Download, ChevronDown, GraduationCap
+  QrCode, Megaphone, Download, ChevronDown, GraduationCap,
+  MapPin, Clock, UserPlus, CheckSquare, FileText,
+  SendHorizonal, XCircle, ExternalLink
 } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -20,47 +22,64 @@ const BRAND = '#173dd1'
 /* ── Sidebar nav items ─────────────────────────────────── */
 const NAV = [
   { icon: LayoutDashboard, label: 'Dashboard' },
-  { icon: Calendar,        label: 'Events' },
-  { icon: ClipboardList,   label: 'Registrations' },
-  { icon: UserCheck,       label: 'Attendance' },
-  { icon: BarChart2,       label: 'Analytics' },
-  { icon: Award,           label: 'Certificates' },
-  { icon: Users,           label: 'Students' },
-  { icon: Briefcase,       label: 'Organizers' },
-  { icon: Bell,            label: 'Notifications', badge: 2 },
-  { icon: Database,        label: 'DB Design' },
-  { icon: Settings,        label: 'Settings' },
+  { icon: Calendar, label: 'Events' },
+  { icon: ClipboardList, label: 'Registrations' },
+  { icon: UserCheck, label: 'Attendance' },
+  { icon: BarChart2, label: 'Analytics' },
+  { icon: Award, label: 'Certificates' },
+  { icon: Users, label: 'Students' },
+  { icon: Briefcase, label: 'Organizers' },
+  { icon: Bell, label: 'Notifications', badge: 2 },
+  { icon: Database, label: 'DB Design' },
+  { icon: Settings, label: 'Settings' },
 ]
 
 /* ── Stats cards ───────────────────────────────────────── */
 const STATS = [
-  { label: 'Total Events',    value: '247',    delta: '+18',    icon: Calendar,      iconBg: '#eff3ff', iconBgDark: '#1e2a5e', iconColor: '#4f46e5' },
-  { label: 'Total Students',  value: '12,483', delta: '+342',   icon: Users,         iconBg: '#f0fdf4', iconBgDark: '#14452f', iconColor: '#16a34a' },
-  { label: 'Registrations',   value: '38,291', delta: '+2,140', icon: ClipboardList, iconBg: '#fff7ed', iconBgDark: '#431407', iconColor: '#ea580c' },
-  { label: 'Avg Attendance',  value: '89%',    delta: '+2%',    icon: UserCheck,     iconBg: '#fdf4ff', iconBgDark: '#3b0764', iconColor: '#a21caf' },
-  { label: 'Upcoming Events', value: '32',     delta: '+5',     icon: Calendar,      iconBg: '#f0f9ff', iconBgDark: '#082f49', iconColor: '#0284c7' },
-  { label: 'Certificates',    value: '8,214',  delta: '+631',   icon: Award,         iconBg: '#fff1f2', iconBgDark: '#4c0519', iconColor: '#e11d48' },
+  { label: 'Total Events', value: '247', delta: '+18', icon: Calendar, iconBg: '#eff3ff', iconBgDark: '#1e2a5e', iconColor: '#4f46e5' },
+  { label: 'Total Students', value: '12,483', delta: '+342', icon: Users, iconBg: '#f0fdf4', iconBgDark: '#14452f', iconColor: '#16a34a' },
+  { label: 'Registrations', value: '38,291', delta: '+2,140', icon: ClipboardList, iconBg: '#fff7ed', iconBgDark: '#431407', iconColor: '#ea580c' },
+  { label: 'Avg Attendance', value: '89%', delta: '+2%', icon: UserCheck, iconBg: '#fdf4ff', iconBgDark: '#3b0764', iconColor: '#a21caf' },
+  { label: 'Upcoming Events', value: '32', delta: '+5', icon: Calendar, iconBg: '#f0f9ff', iconBgDark: '#082f49', iconColor: '#0284c7' },
+  { label: 'Certificates', value: '8,214', delta: '+631', icon: Award, iconBg: '#fff1f2', iconBgDark: '#4c0519', iconColor: '#e11d48' },
 ]
 
 /* ── Chart data ────────────────────────────────────────── */
 const CHART_DATA = [
-  { month: 'Jan', registrations: 280,  attendance: 60 },
-  { month: 'Feb', registrations: 420,  attendance: 65 },
-  { month: 'Mar', registrations: 510,  attendance: 70 },
-  { month: 'Apr', registrations: 390,  attendance: 62 },
-  { month: 'May', registrations: 640,  attendance: 75 },
-  { month: 'Jun', registrations: 720,  attendance: 80 },
-  { month: 'Jul', registrations: 850,  attendance: 88 },
-  { month: 'Aug', registrations: 780,  attendance: 85 },
+  { month: 'Jan', registrations: 280, attendance: 60 },
+  { month: 'Feb', registrations: 420, attendance: 65 },
+  { month: 'Mar', registrations: 510, attendance: 70 },
+  { month: 'Apr', registrations: 390, attendance: 62 },
+  { month: 'May', registrations: 640, attendance: 75 },
+  { month: 'Jun', registrations: 720, attendance: 80 },
+  { month: 'Jul', registrations: 850, attendance: 88 },
+  { month: 'Aug', registrations: 780, attendance: 85 },
 ]
 
 const DEPT_DATA = [
-  { name: 'CSE',   value: 35, color: '#4f46e5' },
-  { name: 'ME',    value: 15, color: '#16a34a' },
-  { name: 'MBA',   value: 10, color: '#e11d48' },
-  { name: 'ECE',   value: 22, color: '#0284c7' },
-  { name: 'EEE',   value: 12, color: '#d97706' },
-  { name: 'Civil', value: 6,  color: '#7c3aed' },
+  { name: 'CSE', value: 35, color: '#4f46e5' },
+  { name: 'ME', value: 15, color: '#16a34a' },
+  { name: 'MBA', value: 10, color: '#e11d48' },
+  { name: 'ECE', value: 22, color: '#0284c7' },
+  { name: 'EEE', value: 12, color: '#d97706' },
+  { name: 'Civil', value: 6, color: '#7c3aed' },
+]
+
+/* ── Upcoming Events ───────────────────────────────────── */
+const UPCOMING_EVENTS = [
+  { id: 1, month: 'AUG', day: '15', title: 'TechFest 2025', venue: 'Main Auditorium', time: '09:00', registered: 425, capacity: 500, color: '#4f46e5' },
+  { id: 2, month: 'JUL', day: '22', title: 'Annual Cultural Fest', venue: 'Open Air Theatre', time: '18:00', registered: 876, capacity: 1000, color: '#7c3aed' },
+  { id: 3, month: 'SEP', day: '5', title: 'Sports Meet 2025', venue: 'University Grounds', time: '07:00', registered: 612, capacity: 800, color: '#e11d48' },
+]
+
+/* ── Recent Activity ───────────────────────────────────── */
+const RECENT_ACTIVITY = [
+  { id: 1, icon: UserPlus, text: 'Arjun Patel registered for TechFest 2025', time: '2 min ago', iconColor: '#4f46e5' },
+  { id: 2, icon: CheckSquare, text: 'Attendance marked for National Hackathon (198/200)', time: '15 min ago', iconColor: '#16a34a' },
+  { id: 3, icon: Calendar, text: 'Sports Meet 2025 published by Dr. Kavitha Reddy', time: '1 hr ago', iconColor: '#0284c7' },
+  { id: 4, icon: Award, text: '143 certificates generated for Research Symposium', time: '3 hr ago', iconColor: '#d97706' },
+  { id: 5, icon: SendHorizonal, text: 'Bulk notification sent to 1,200 students', time: '5 hr ago', iconColor: '#7c3aed' },
+  { id: 6, icon: XCircle, text: 'Entrepreneurship Bootcamp cancelled', time: 'Yesterday', iconColor: '#ef4444' },
 ]
 
 /* ── Custom Tooltip ────────────────────────────────────── */
@@ -103,21 +122,21 @@ export default function AdminDashboard() {
   }
 
   /* ── Dark mode tokens ──────────────────────────────────── */
-  const bg       = dark ? '#0f172a' : '#f5f6fa'
-  const sidebar  = dark ? '#1e293b' : '#ffffff'
-  const header   = dark ? '#1e293b' : '#ffffff'
-  const card     = dark ? '#1e293b' : '#ffffff'
-  const border   = dark ? '#334155' : '#e2e8f0'
-  const txtPri   = dark ? '#f1f5f9' : '#0f172a'
-  const txtSec   = dark ? '#94a3b8' : '#64748b'
+  const bg = dark ? '#0f172a' : '#f5f6fa'
+  const sidebar = dark ? '#1e293b' : '#ffffff'
+  const header = dark ? '#1e293b' : '#ffffff'
+  const card = dark ? '#1e293b' : '#ffffff'
+  const border = dark ? '#334155' : '#e2e8f0'
+  const txtPri = dark ? '#f1f5f9' : '#0f172a'
+  const txtSec = dark ? '#94a3b8' : '#64748b'
   const txtMuted = dark ? '#475569' : '#94a3b8'
-  const inputBg  = dark ? '#0f172a' : '#ffffff'
-  const hoverBg  = dark ? '#334155' : '#f1f5f5'
+  const inputBg = dark ? '#0f172a' : '#ffffff'
+  const hoverBg = dark ? '#334155' : '#f1f5f5'
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', background: bg, fontFamily: "'Inter', sans-serif", transition: 'background 0.3s' }}>
 
-      {/* ══ SIDEBAR ══════════════════════════════════════ */}
+      {/* SIDEBAR */}
       <aside
         style={{
           width: collapsed ? 64 : 168,
@@ -132,7 +151,7 @@ export default function AdminDashboard() {
         }}
       >
         {/* Logo + collapse */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 12px', borderBottom: `1px solid ${border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexDirection:"row", justifyContent: 'space-between', padding: '16px 12px', borderBottom: `1px solid ${border}` }}>
           {!collapsed && (
             <div>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: `${BRAND}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -408,6 +427,115 @@ export default function AdminDashboard() {
                     <span style={{ fontSize: 10, fontWeight: 700, color: txtPri, marginLeft: 'auto' }}>{d.value}%</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── BOTTOM ROW: Upcoming Events + Recent Activity ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 20, marginTop: 20 }}>
+
+            {/* Upcoming Events */}
+            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.3s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <h2 style={{ fontSize: 13, fontWeight: 700, color: txtPri, margin: 0 }}>Upcoming Events</h2>
+                <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, color: BRAND, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                  View all <ExternalLink size={11} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {UPCOMING_EVENTS.map(ev => {
+                  const pct = Math.round((ev.registered / ev.capacity) * 100)
+                  return (
+                    <div
+                      key={ev.id}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '12px 14px', borderRadius: 12,
+                        border: `1px solid ${border}`,
+                        background: dark ? '#0f172a' : '#f8fafc',
+                        transition: 'all 0.2s', cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = ev.color; e.currentTarget.style.boxShadow = `0 0 0 3px ${ev.color}18` }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = border; e.currentTarget.style.boxShadow = 'none' }}
+                    >
+                      {/* Date badge */}
+                      <div style={{
+                        minWidth: 44, height: 50, borderRadius: 10,
+                        background: ev.color, display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center', color: '#fff',
+                        flexShrink: 0,
+                      }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 0.5, opacity: 0.85 }}>{ev.month}</span>
+                        <span style={{ fontSize: 18, fontWeight: 900, lineHeight: 1 }}>{ev.day}</span>
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: txtPri, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.title}</p>
+                        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: txtSec }}>
+                            <MapPin size={10} /> {ev.venue}
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: txtSec }}>
+                            <Clock size={10} /> {ev.time}
+                          </span>
+                        </div>
+                        {/* Progress bar */}
+                        <div style={{ marginTop: 6 }}>
+                          <div style={{ height: 4, borderRadius: 99, background: dark ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: ev.color, transition: 'width 0.5s' }} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Count */}
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: txtPri, margin: 0 }}>
+                          {ev.registered.toLocaleString()}<span style={{ fontSize: 10, fontWeight: 500, color: txtMuted }}>/{ev.capacity.toLocaleString()}</span>
+                        </p>
+                        <p style={{ fontSize: 10, color: txtMuted, margin: '2px 0 0' }}>registered</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.3s' }}>
+              <h2 style={{ fontSize: 13, fontWeight: 700, color: txtPri, margin: '0 0 16px 0' }}>Recent Activity</h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {RECENT_ACTIVITY.map((act, idx) => {
+                  const Icon = act.icon
+                  const isLast = idx === RECENT_ACTIVITY.length - 1
+                  return (
+                    <div key={act.id} style={{ display: 'flex', gap: 12, position: 'relative' }}>
+                      {/* Icon + vertical line */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+                        <div style={{
+                          width: 30, height: 30, borderRadius: '50%',
+                          background: `${act.iconColor}18`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0, zIndex: 1,
+                        }}>
+                          <Icon size={13} style={{ color: act.iconColor }} />
+                        </div>
+                        {!isLast && (
+                          <div style={{ width: 1, flex: 1, minHeight: 12, background: dark ? '#334155' : '#e2e8f0', margin: '4px 0' }} />
+                        )}
+                      </div>
+
+                      {/* Text */}
+                      <div style={{ paddingBottom: isLast ? 0 : 14, flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 11, color: txtPri, fontWeight: 500, margin: 0, lineHeight: 1.4 }}>{act.text}</p>
+                        <p style={{ fontSize: 10, color: txtMuted, margin: '3px 0 0' }}>{act.time}</p>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 
