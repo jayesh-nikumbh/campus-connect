@@ -3,7 +3,7 @@ import { ToastProvider } from './context/ToastContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import LoginPage from './pages/LoginPage'
-import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminDashboard from './pages/Admin/AdminDashboard'
 // import LandingPage from './pages/LandingPage'   ← uncomment when needed
 
 /**

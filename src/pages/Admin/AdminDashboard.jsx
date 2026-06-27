@@ -4,15 +4,15 @@ import { useToast } from '../../context/ToastContext'
 import { useTheme } from '../../context/ThemeContext'
 import {
   LayoutDashboard, Calendar, ClipboardList, UserCheck,
-  BarChart2, Award, Users, Briefcase, Bell, Database,
+  ChartColumn, Award, Users, Briefcase, Bell, Database,
   Settings, LogOut, Search, Moon, Sun, MessageSquare,
   ChevronRight, ChevronLeft, TrendingUp, Plus,
   QrCode, Megaphone, Download, ChevronDown, GraduationCap,
-  MapPin, Clock, UserPlus, CheckSquare, FileText,
+  MapPin, Clock, UserPlus, CheckSquare, CalendarDays, SquareCheckBig,
   SendHorizonal, XCircle, ExternalLink
 } from 'lucide-react'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
 
@@ -22,12 +22,12 @@ const BRAND = '#173dd1'
 /* ── Sidebar nav items ─────────────────────────────────── */
 const NAV = [
   { icon: LayoutDashboard, label: 'Dashboard' },
-  { icon: Calendar, label: 'Events' },
+  { icon: CalendarDays, label: 'Events' },
   { icon: ClipboardList, label: 'Registrations' },
-  { icon: UserCheck, label: 'Attendance' },
-  { icon: BarChart2, label: 'Analytics' },
+  { icon: SquareCheckBig, label: 'Attendance' },
+  { icon: ChartColumn, label: 'Analytics' },
   { icon: Award, label: 'Certificates' },
-  { icon: Users, label: 'Students' },
+  { icon: GraduationCap, label: 'Students' },
   { icon: Briefcase, label: 'Organizers' },
   { icon: Bell, label: 'Notifications', badge: 2 },
   { icon: Database, label: 'DB Design' },
@@ -134,12 +134,12 @@ export default function AdminDashboard() {
   const hoverBg = dark ? '#334155' : '#f1f5f5'
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: bg, fontFamily: "'Inter', sans-serif", transition: 'background 0.3s' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: bg, fontFamily: "'Manrope', sans-serif", transition: 'background 0.3s' }}>
 
       {/* SIDEBAR */}
       <aside
         style={{
-          width: collapsed ? 64 : 168,
+          width: collapsed ? 70 : 240,
           background: sidebar,
           borderRight: `1px solid ${border}`,
           position: 'fixed',
@@ -147,37 +147,97 @@ export default function AdminDashboard() {
           zIndex: 30,
           display: 'flex',
           flexDirection: 'column',
-          transition: 'all 0.3s',
+          overflow: 'hidden',
+          transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)',
         }}
       >
-        {/* Logo + collapse */}
-        <div style={{ display: 'flex', alignItems: 'center', flexDirection:"row", justifyContent: 'space-between', padding: '16px 12px', borderBottom: `1px solid ${border}` }}>
-          {!collapsed && (
-            <div>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `${BRAND}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <GraduationCap size={18} color={BRAND} />
-              </div>
-              <p style={{ fontSize: 13, fontWeight: 900, color: txtPri, lineHeight: 1.2, marginTop: 4 }}>EventHub</p>
-              <p style={{ fontSize: 10, color: txtMuted }}>Admin Portal</p>
+        {/* ── HEADER: Logo + Collapse Toggle ── */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: collapsed ? 'center' : 'space-between',
+          padding: collapsed ? '16px 0' : '16px 20px',
+          borderBottom: `1px solid ${border}`,
+          minHeight: 64,
+          boxSizing: 'border-box',
+          flexShrink: 0,
+          overflow: 'hidden',
+        }}>
+          {/* Logo — always show the icon; show text only when open */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <div
+              style={{
+                width: 38, height: 38,
+                borderRadius: 10,
+                background: BRAND,
+                flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginLeft: collapsed ? 'auto' : 0,
+                marginRight: collapsed ? 'auto' : 0,
+              }}
+            >
+              <GraduationCap size={20} color="#fff" />
             </div>
+
+            {/* Text fades out when collapsed */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: 2,
+              opacity: collapsed ? 0 : 1,
+              width: collapsed ? 0 : 'auto',
+              overflow: 'hidden',
+              transition: 'opacity 0.2s, width 0.3s',
+              whiteSpace: 'nowrap',
+            }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: txtPri, lineHeight: 1 }}>EventHub</span>
+              <span style={{ fontSize: 11, fontWeight: 500, color: txtSec, lineHeight: 1 }}>Admin Portal</span>
+            </div>
+          </div>
+
+          {/* Collapse toggle — hidden when collapsed (toggle is in nav top area) */}
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              style={{
+                background: 'transparent', border: 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: txtSec, cursor: 'pointer', padding: 4, borderRadius: 6,
+                flexShrink: 0, transition: 'all 0.15s',
+              }}
+            >
+              <ChevronLeft size={18} />
+            </button>
           )}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              width: 28, height: 28, borderRadius: 8,
-              border: `1px solid ${border}`,
-              background: 'transparent',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: txtSec, cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-          >
-            {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
-          </button>
         </div>
 
-        {/* Nav items */}
-        <nav style={{ flex: 1, padding: '10px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
+        {/* ── NAV ITEMS ── */}
+        <nav style={{
+          flex: 1,
+          padding: collapsed ? '12px 10px' : '16px 14px',
+          display: 'flex', flexDirection: 'column',
+          gap: 2,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          transition: 'padding 0.3s',
+        }}>
+          {/* Expand button — only shown when collapsed, at top of nav */}
+          {collapsed && (
+            <button
+              onClick={() => setCollapsed(false)}
+              title="Expand sidebar"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '10px', borderRadius: 10,
+                border: 'none', cursor: 'pointer',
+                background: 'transparent',
+                color: txtSec, width: '100%',
+                marginBottom: 8,
+                transition: 'all 0.15s',
+              }}
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
+
           {NAV.map(({ icon: Icon, label, badge }) => {
             const active = activeNav === label
             return (
@@ -186,29 +246,45 @@ export default function AdminDashboard() {
                 onClick={() => setActiveNav(label)}
                 title={collapsed ? label : ''}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 10px', borderRadius: 8,
-                  fontSize: 12, fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  gap: collapsed ? 0 : 12,
+                  padding: collapsed ? '11px' : '10px 14px',
+                  borderRadius: 10,
+                  fontSize: 13, fontWeight: 600,
                   border: 'none', cursor: 'pointer',
-                  width: '100%', textAlign: 'left', position: 'relative',
-                  background: active ? `${BRAND}18` : 'transparent',
+                  width: '100%', position: 'relative',
+                  background: active ? `${BRAND}12` : 'transparent',
                   color: active ? BRAND : txtSec,
                   transition: 'all 0.15s',
                 }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = hoverBg }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
               >
-                <Icon size={15} style={{ flexShrink: 0 }} />
-                {!collapsed && <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>}
+                <Icon
+                  size={18}
+                  style={{ flexShrink: 0, color: active ? BRAND : txtSec }}
+                />
+                {!collapsed && (
+                  <span style={{
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    opacity: collapsed ? 0 : 1,
+                    transition: 'opacity 0.2s',
+                  }}>{label}</span>
+                )}
+                {/* Badge — pill when open, dot when collapsed */}
                 {badge && !collapsed && (
                   <span style={{
                     marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                    padding: '1px 6px', borderRadius: 999,
+                    padding: '2px 8px', borderRadius: 999,
                     background: BRAND, color: '#fff',
                   }}>{badge}</span>
                 )}
                 {badge && collapsed && (
                   <span style={{
-                    position: 'absolute', top: 4, right: 4,
-                    width: 8, height: 8, borderRadius: '50%', background: BRAND,
+                    position: 'absolute', top: 6, right: 6,
+                    width: 7, height: 7, borderRadius: '50%', background: BRAND,
                   }} />
                 )}
               </button>
@@ -216,72 +292,82 @@ export default function AdminDashboard() {
           })}
         </nav>
 
-        {/* Logout */}
-        <div style={{ padding: '8px', borderTop: `1px solid ${border}` }}>
+        {/* ── LOGOUT ── */}
+        <div style={{
+          padding: collapsed ? '12px 10px' : '12px 14px',
+          borderTop: `1px solid ${border}`,
+          flexShrink: 0,
+          transition: 'padding 0.3s',
+        }}>
           <button
             onClick={handleLogout}
-            title="Logout"
+            title={collapsed ? 'Logout' : ''}
             style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              padding: '8px 10px', borderRadius: 8,
-              fontSize: 12, fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: collapsed ? 0 : 12,
+              padding: collapsed ? '11px' : '10px 14px',
+              borderRadius: 10,
+              fontSize: 13, fontWeight: 600,
               border: 'none', cursor: 'pointer', background: 'transparent',
               color: txtSec, width: '100%', transition: 'all 0.15s',
             }}
             onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = dark ? '#2d1b1b' : '#fef2f2' }}
             onMouseLeave={e => { e.currentTarget.style.color = txtSec; e.currentTarget.style.background = 'transparent' }}
           >
-            <LogOut size={15} style={{ flexShrink: 0 }} />
+            <LogOut size={18} style={{ flexShrink: 0 }} />
             {!collapsed && <span>Logout</span>}
           </button>
         </div>
       </aside>
 
       {/* ══ MAIN CONTENT ═════════════════════════════════ */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', marginLeft: collapsed ? 64 : 168, transition: 'margin-left 0.3s' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', marginLeft: collapsed ? 70 : 240, transition: 'margin-left 0.3s' }}>
 
         {/* ── TOP BAR ── */}
         <header style={{
           position: 'sticky', top: 0, zIndex: 20,
           background: header, borderBottom: `1px solid ${border}`,
-          padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 14,
+          padding: '12px 24px', display: 'flex', alignItems: 'center',
           transition: 'all 0.3s',
         }}>
           {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: txtSec, fontWeight: 500 }}>
-            <span style={{ color: txtPri, fontWeight: 700 }}>EventHub</span>
-            <ChevronRight size={12} />
-            <span style={{ color: BRAND }}>{activeNav}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: txtSec, fontWeight: 500 }}>
+            <span>EventHub</span>
+            <ChevronRight size={12} style={{ color: txtMuted }} />
+            <span style={{ color: txtPri, fontWeight: 700 }}>{activeNav}</span>
           </div>
 
-          {/* Search */}
-          <div style={{ flex: 1, maxWidth: 300, position: 'relative' }}>
-            <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: txtMuted }} />
-            <input
-              type="text"
-              placeholder="Search everything..."
-              style={{
-                width: '100%', paddingLeft: 32, paddingRight: 14,
-                paddingTop: 6, paddingBottom: 6,
-                borderRadius: 8, border: `1px solid ${border}`,
-                fontSize: 12, color: txtPri,
-                background: inputBg,
-                outline: 'none', transition: 'all 0.2s',
-                boxSizing: 'border-box',
-              }}
-              onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}25` }}
-              onBlur={e => { e.target.style.borderColor = border; e.target.style.boxShadow = 'none' }}
-            />
-          </div>
+          {/* Right Align container */}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Search */}
+            <div style={{ position: 'relative', width: 240 }}>
+              <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: txtMuted }} />
+              <input
+                type="text"
+                placeholder="Search everything..."
+                style={{
+                  width: '100%', paddingLeft: 36, paddingRight: 14,
+                  paddingTop: 8, paddingBottom: 8,
+                  borderRadius: 10, border: `1px solid ${border}`,
+                  fontSize: 13, color: txtPri,
+                  background: inputBg,
+                  outline: 'none', transition: 'all 0.2s',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}25` }}
+                onBlur={e => { e.target.style.borderColor = border; e.target.style.boxShadow = 'none' }}
+              />
+            </div>
 
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* 🌙 / ☀️ Theme Toggle */}
             <button
               onClick={toggleDark}
               title={dark ? 'Switch to Light' : 'Switch to Dark'}
               style={{
-                width: 34, height: 34,
-                borderRadius: 8,
+                width: 38, height: 38,
+                borderRadius: 10,
                 border: `1px solid ${border}`,
                 background: dark ? '#334155' : '#f1f5f9',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -297,13 +383,13 @@ export default function AdminDashboard() {
             </button>
 
             {/* Bell */}
-            <button style={{ position: 'relative', width: 34, height: 34, borderRadius: 8, border: `1px solid ${border}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: txtSec, transition: 'all 0.2s' }}>
+            <button style={{ position: 'relative', width: 38, height: 38, borderRadius: 10, border: `1px solid ${border}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: txtSec, transition: 'all 0.2s' }}>
               <Bell size={16} />
-              <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+              <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
             </button>
 
             {/* Messages */}
-            <button style={{ width: 34, height: 34, borderRadius: 8, border: `1px solid ${border}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: txtSec, transition: 'all 0.2s' }}>
+            <button style={{ width: 38, height: 38, borderRadius: 10, border: `1px solid ${border}`, background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: txtSec, transition: 'all 0.2s' }}>
               <MessageSquare size={16} />
             </button>
 
@@ -315,13 +401,13 @@ export default function AdminDashboard() {
               background: 'transparent', cursor: 'pointer',
               transition: 'all 0.2s',
             }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: BRAND, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700 }}>
-                {user?.avatar || 'AD'}
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 11, fontWeight: 700 }}>
+                {user?.avatar || 'DP'}
               </div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: txtPri, maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user?.name?.split(' ')[0] || 'Admin'}
+              <span style={{ fontSize: 13, fontWeight: 600, color: txtPri, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.name || 'Dr. Priya Sharma'}
               </span>
-              <ChevronDown size={12} style={{ color: txtMuted }} />
+              <ChevronDown size={14} style={{ color: txtMuted }} />
             </button>
           </div>
         </header>
@@ -332,35 +418,39 @@ export default function AdminDashboard() {
           {/* Page title row */}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 24 }}>
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 900, color: txtPri, margin: 0 }}>Admin Dashboard</h1>
-              <p style={{ fontSize: 12, color: txtMuted, marginTop: 4 }}>{today}</p>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: txtPri, margin: 0, letterSpacing: '-0.02em' }}>Admin Dashboard</h1>
+              <p style={{ fontSize: 13, color: txtSec, marginTop: 4 }}>{today}</p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: BRAND, color: '#fff', border: 'none', cursor: 'pointer', transition: 'opacity 0.15s' }}>
-                <Plus size={13} /> Create Event
+              <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: BRAND, color: '#fff', border: 'none', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(23,61,209,0.2)' }}>
+                <Plus size={15} /> Create Event
               </button>
-              {[{ icon: QrCode, label: 'Generate QR' }, { icon: Megaphone, label: 'Notify' }, { icon: Download, label: 'Report' }].map(({ icon: Icon, label }) => (
-                <button key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, background: card, color: txtSec, border: `1px solid ${border}`, cursor: 'pointer', transition: 'all 0.15s' }}>
-                  <Icon size={13} /> {label}
-                </button>
-              ))}
+              <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: card, color: txtPri, border: `1px solid ${border}`, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <QrCode size={15} style={{ color: txtSec }} /> Generate QR
+              </button>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: card, color: txtPri, border: `1px solid ${border}`, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <Megaphone size={15} style={{ color: txtSec }} /> Notify
+              </button>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: card, color: txtPri, border: `1px solid ${border}`, cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                <Download size={15} style={{ color: txtSec }} /> Report
+              </button>
             </div>
           </div>
 
           {/* ── STATS CARDS ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 16, marginBottom: 24 }}>
             {STATS.map(({ label, value, delta, icon: Icon, iconBg, iconBgDark, iconColor }) => (
-              <div key={label} style={{ background: card, borderRadius: 16, padding: 16, border: `1px solid ${border}`, boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.3s' }}>
+              <div key={label} style={{ background: card, borderRadius: 18, padding: 20, border: `1px solid ${border}`, boxShadow: dark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.02)', transition: 'all 0.3s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: dark ? iconBgDark : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={16} style={{ color: iconColor }} />
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: dark ? iconBgDark : iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={18} style={{ color: iconColor }} />
                   </div>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, fontWeight: 700, color: '#10b981' }}>
-                    <TrendingUp size={10} /> {delta}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: '#16a34a' }}>
+                    <TrendingUp size={12} /> {delta}
                   </span>
                 </div>
-                <p style={{ fontSize: 20, fontWeight: 900, color: txtPri, margin: 0, lineHeight: 1 }}>{value}</p>
-                <p style={{ fontSize: 10, fontWeight: 600, color: txtMuted, marginTop: 4 }}>{label}</p>
+                <p style={{ fontSize: 26, fontWeight: 800, color: txtPri, margin: 0, lineHeight: 1.1, letterSpacing: '-0.02em' }}>{value}</p>
+                <p style={{ fontSize: 13, fontWeight: 500, color: txtSec, marginTop: 6 }}>{label}</p>
               </div>
             ))}
           </div>
@@ -369,42 +459,52 @@ export default function AdminDashboard() {
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
 
             {/* Line Chart */}
-            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.3s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.02)', transition: 'all 0.3s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <h2 style={{ fontSize: 13, fontWeight: 700, color: txtPri, margin: 0 }}>Event &amp; Registration Growth</h2>
-                  <p style={{ fontSize: 11, color: txtMuted, marginTop: 2 }}>January — August 2025</p>
+                  <h2 style={{ fontSize: 15, fontWeight: 800, color: txtPri, margin: 0 }}>Event &amp; Registration Growth</h2>
+                  <p style={{ fontSize: 12, color: txtSec, marginTop: 2 }}>January — August 2025</p>
                 </div>
-                <select style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: '4px 8px', color: txtSec, background: inputBg, outline: 'none', cursor: 'pointer' }}>
+                <select style={{ fontSize: 12, border: `1px solid ${border}`, borderRadius: 8, padding: '6px 12px', color: txtSec, background: inputBg, outline: 'none', cursor: 'pointer' }}>
                   <option>2025</option>
                   <option>2024</option>
                 </select>
               </div>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={CHART_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={dark ? '#1e293b' : '#f1f5f9'} />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: txtMuted }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: txtMuted }} axisLine={false} tickLine={false} />
+                <AreaChart data={CHART_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRegistrations" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.01}/>
+                    </linearGradient>
+                    <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#16a34a" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#16a34a" stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={dark ? '#334155' : '#f1f5f9'} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: txtSec }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: txtSec }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip dark={dark} />} />
-                  <Line type="monotone" dataKey="registrations" name="Registrations" stroke="#4f46e5" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
-                  <Line type="monotone" dataKey="attendance" name="Attendance %" stroke="#16a34a" strokeWidth={2} dot={false} strokeDasharray="4 2" activeDot={{ r: 4 }} />
-                </LineChart>
+                  <Area type="monotone" dataKey="registrations" name="Registrations" stroke="#4f46e5" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRegistrations)" activeDot={{ r: 6 }} />
+                  <Area type="monotone" dataKey="attendance" name="Attendance %" stroke="#16a34a" strokeWidth={2} fillOpacity={1} fill="url(#colorAttendance)" strokeDasharray="4 2" activeDot={{ r: 4 }} />
+                </AreaChart>
               </ResponsiveContainer>
-              <div style={{ display: 'flex', gap: 20, marginTop: 8, paddingLeft: 8 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, color: txtSec }}>
-                  <span style={{ width: 20, height: 2, background: '#4f46e5', borderRadius: 2, display: 'inline-block' }} /> Registrations
+              <div style={{ display: 'flex', gap: 20, marginTop: 12, paddingLeft: 8 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: txtSec }}>
+                  <span style={{ width: 16, height: 3, background: '#4f46e5', borderRadius: 2, display: 'inline-block' }} /> Registrations
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, color: txtSec }}>
-                  <span style={{ width: 20, borderTop: '2px dashed #16a34a', display: 'inline-block' }} /> Attendance %
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: txtSec }}>
+                  <span style={{ width: 16, borderTop: '3px dashed #16a34a', display: 'inline-block' }} /> Attendance %
                 </span>
               </div>
             </div>
 
             {/* Donut Chart */}
-            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 2px 12px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)', transition: 'all 0.3s' }}>
+            <div style={{ background: card, borderRadius: 16, border: `1px solid ${border}`, padding: 20, boxShadow: dark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.02)', transition: 'all 0.3s' }}>
               <div style={{ marginBottom: 8 }}>
-                <h2 style={{ fontSize: 13, fontWeight: 700, color: txtPri, margin: 0 }}>Dept. Participation</h2>
-                <p style={{ fontSize: 11, color: txtMuted, marginTop: 2 }}>By department share</p>
+                <h2 style={{ fontSize: 15, fontWeight: 800, color: txtPri, margin: 0 }}>Dept. Participation</h2>
+                <p style={{ fontSize: 12, color: txtSec, marginTop: 2 }}>By department share</p>
               </div>
               <ResponsiveContainer width="100%" height={170}>
                 <PieChart>
@@ -419,12 +519,12 @@ export default function AdminDashboard() {
                   />
                 </PieChart>
               </ResponsiveContainer>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px', marginTop: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px', marginTop: 12 }}>
                 {DEPT_DATA.map(d => (
-                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: d.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, color: txtSec, fontWeight: 500 }}>{d.name}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: txtPri, marginLeft: 'auto' }}>{d.value}%</span>
+                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: txtSec, fontWeight: 500 }}>{d.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: txtPri, marginLeft: 'auto' }}>{d.value}%</span>
                   </div>
                 ))}
               </div>
