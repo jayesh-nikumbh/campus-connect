@@ -2,7 +2,7 @@ import {
   LayoutDashboard, ClipboardList, Award,
   ChartColumn, Bell, Database, Settings,
   GraduationCap, Building2, CalendarDays, SquareCheckBig,
-  Star, UserPlus, CheckSquare, Calendar,
+  UserPlus, CheckSquare, Calendar,
   SendHorizonal, XCircle,
 } from 'lucide-react'
 
@@ -18,18 +18,9 @@ export const NAV = [
   { icon: GraduationCap,   label: 'Students' },
   { icon: Building2,       label: 'Organizers' },
   { icon: Bell,            label: 'Notifications', badge: 2 },
-  { icon: Database,        label: 'DB Design' },
   { icon: Settings,        label: 'Settings' },
 ]
 
-export const STATS = [
-  { label: 'Total Events',    value: '247',    delta: '+18',    icon: CalendarDays,   iconBg: '#615FFF', iconColor: '#fff' },
-  { label: 'Total Students',  value: '12,483', delta: '+342',   icon: GraduationCap,  iconBg: '#00BC7D', iconColor: '#fff' },
-  { label: 'Registrations',   value: '38,291', delta: '+2,140', icon: ClipboardList,  iconBg: '#FE9A00', iconColor: '#fff' },
-  { label: 'Avg Attendance',  value: '89%',    delta: '+2%',    icon: SquareCheckBig, iconBg: '#8E51FF', iconColor: '#fff' },
-  { label: 'Upcoming Events', value: '32',     delta: '+5',     icon: Star,           iconBg: '#2B7FFF', iconColor: '#fff' },
-  { label: 'Certificates',    value: '8,214',  delta: '+631',   icon: Award,          iconBg: '#F6339A', iconColor: '#fff' },
-]
 
 export const CHART_DATA = [
   { month: 'Jan', registrations: 280, attendance: 60 },

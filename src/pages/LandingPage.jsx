@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import campusHero from '../assets/campus-hero.png'
 import campusAuditorium from '../assets/campus-auditorium.png'
 import dashboardLaptop from '../assets/dashboard-laptop.png'

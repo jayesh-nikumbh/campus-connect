@@ -7,6 +7,7 @@ import {
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 import authService from '../services/authService'
+import SignUpForm from './SignUpForm'
 
 const ROLES = [
   { id: 'admin', label: 'Admin', icon: ShieldCheck, color: '#173dd1' },
@@ -30,6 +31,9 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Sign Up state
+  const [isSignUp, setIsSignUp] = useState(false)
+
   // Forgot password modal
   const [forgotOpen, setForgotOpen] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
@@ -39,15 +43,23 @@ export default function LoginPage() {
   const { login } = useAuth()
   const showToast = useToast()
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault()
     setForgotLoading(true)
-    setTimeout(() => {
+    try {
+      const res = await authService.forgotPassword(forgotEmail)
+      if (res.success) {
+        showToast(res.message || `Password reset link sent to ${forgotEmail}`, 'success')
+        setForgotOpen(false)
+        setForgotEmail('')
+      } else {
+        showToast(res.message || 'Failed to send password reset link.', 'error')
+      }
+    } catch {
+      showToast('Something went wrong. Please try again.', 'error')
+    } finally {
       setForgotLoading(false)
-      setForgotOpen(false)
-      setForgotEmail('')
-      showToast(`Password reset link sent to ${forgotEmail}`, 'success')
-    }, 1500)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -58,7 +70,6 @@ export default function LoginPage() {
       if (result.success) {
         login(result.user, result.token)
         showToast(`Welcome back, ${result.user.name}!`, 'success')
-        // onLoginSuccess prop se navigate hoga (App.jsx handle karega)
       } else {
         showToast(result.message || 'Login failed. Please try again.', 'error')
       }
@@ -145,135 +156,153 @@ export default function LoginPage() {
         {/* ── RIGHT PANEL ── */}
         <div className="flex-1 flex items-center justify-center bg-white px-6 py-12">
           <div className="w-full max-w-[420px]">
-
-            {/* Heading */}
-            <h1 className="text-2xl font-black text-slate-900 mb-1">Welcome back</h1>
-            <p className="text-sm text-slate-500 mb-8">Sign in to your account to continue</p>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
-              {/* Role tabs */}
-              <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2 block">
-                  Select Role
-                </label>
-                <div className="flex gap-2">
-                  {ROLES.map(({ id, label, icon: Icon, color }) => {
-                    const active = role === id
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setRole(id)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 border"
-                        style={active
-                          ? { background: color, color: '#fff', borderColor: color, boxShadow: `0 4px 14px ${color}40` }
-                          : { background: '#f8fafc', color: '#64748b', borderColor: '#e2e8f0' }
-                        }
-                      >
-                        <Icon size={13} />
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="email"
-                    placeholder="admin@university.edu"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder-slate-400
-                    focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type={showPass ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder-slate-400
-                    focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember + Forgot */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={e => setRemember(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded accent-indigo-600"
-                  />
-                  <span className="text-sm text-slate-600">Remember me</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setForgotOpen(true)}
-                  className="text-sm text-indigo-600 font-semibold hover:underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all duration-200 relative overflow-hidden"
-                style={{
-                  background: loading
-                    ? '#a5b4fc'
-                    : 'linear-gradient(90deg, #4f46e5, #6d28d9)',
-                  boxShadow: loading ? 'none' : '0 4px 18px rgba(99,102,241,0.35)',
+            {isSignUp ? (
+              <SignUpForm
+                onSwitchToSignIn={() => setIsSignUp(false)}
+                onSignUpSuccess={(newEmail) => {
+                  setEmail(newEmail)
+                  setPassword('')
+                  setIsSignUp(false)
                 }}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
-                      <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Signing in…
-                  </span>
-                ) : 'Sign In'}
-              </button>
+              />
+            ) : (
+              <>
+                {/* Heading */}
+                <h1 className="text-2xl font-black text-slate-900 mb-1">Welcome back</h1>
+                <p className="text-sm text-slate-500 mb-8">Sign in to your account to continue</p>
 
-              {/* Sign up link */}
-              <p className="text-sm text-slate-500 text-center">
-                Don't have an account?{' '}
-                <a href="#" className="text-indigo-600 font-semibold hover:underline">Sign up</a>
-              </p>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-            </form>
+                  {/* Role tabs */}
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2 block">
+                      Select Role
+                    </label>
+                    <div className="flex gap-2">
+                      {ROLES.map(({ id, label, icon: Icon, color }) => {
+                        const active = role === id
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => setRole(id)}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 border"
+                            style={active
+                              ? { background: color, color: '#fff', borderColor: color, boxShadow: `0 4px 14px ${color}40` }
+                              : { background: '#f8fafc', color: '#64748b', borderColor: '#e2e8f0' }
+                            }
+                          >
+                            <Icon size={13} />
+                            {label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="email"
+                        placeholder="admin@university.edu"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder-slate-400
+                        focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type={showPass ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-700 placeholder-slate-400
+                        focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPass(!showPass)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember + Forgot */}
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={remember}
+                        onChange={e => setRemember(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded accent-indigo-600"
+                      />
+                      <span className="text-sm text-slate-600">Remember me</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setForgotOpen(true)}
+                      className="text-sm text-indigo-600 font-semibold hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all duration-200 relative overflow-hidden"
+                    style={{
+                      background: loading
+                        ? '#a5b4fc'
+                        : 'linear-gradient(90deg, #4f46e5, #6d28d9)',
+                      boxShadow: loading ? 'none' : '0 4px 18px rgba(99,102,241,0.35)',
+                    }}
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
+                          <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Signing in…
+                      </span>
+                    ) : 'Sign In'}
+                  </button>
+
+                  {/* Sign up link */}
+                  <p className="text-sm text-slate-500 text-center">
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => setIsSignUp(true)}
+                      className="text-indigo-600 font-semibold bg-transparent border-none hover:underline cursor-pointer p-0 align-baseline"
+                    >
+                      Sign up
+                    </button>
+                  </p>
+
+                </form>
+              </>
+            )}
           </div>
         </div>
 
