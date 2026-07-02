@@ -24,7 +24,7 @@ const Pill = ({ children }) => (
 
 const Check = ({ children }) => (
   <li className="flex items-start gap-3 text-slate-600 text-sm">
-    <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#173dd1]/10 flex items-center justify-center text-[#173dd1] text-xs font-bold">
+    <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-[#173dd1]/10 flex items-center justify-center text-[#173dd1] text-xs font-bold">
       ✓
     </span>
     {children}
@@ -128,7 +128,7 @@ export default function LandingPage() {
             className="w-full h-full object-cover object-center"
           />
           {/* dark gradient from bottom */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/30 to-black/10" />
         </div>
 
         {/* Content */}
@@ -292,7 +292,7 @@ export default function LandingPage() {
             our platform makes it effortless.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="px-8 transition-all duration-300 hover:-translate-y-1 hover:scale-105 py-3.5 text-sm font-bold bg-white text-[#173dd1] rounded-full hover:bg-slate-100 transition shadow-lg shadow-black/10">
+            <button className="px-8 duration-300 hover:-translate-y-1 hover:scale-105 py-3.5 text-sm font-bold bg-white text-[#173dd1] rounded-full hover:bg-slate-100 transition shadow-lg shadow-black/10">
               Sign Up Free
             </button>
             <button className="px-8 transition-all duration-300 hover:-translate-y-1 hover:scale-105 py-3.5 text-sm font-bold border-2 border-white text-white rounded-full hover:bg-white/10">

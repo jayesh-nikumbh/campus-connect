@@ -31,11 +31,11 @@ export default function ChartsRow({ dark, tokens }) {
   const { card, border, shadow, txtPri, inputBg } = tokens
 
   return (
-    <div className="grid gap-5" style={{ gridTemplateColumns: '2fr 1fr' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
       {/* Area Chart */}
       <div
-        className="rounded-2xl border p-5 transition-all duration-300"
+        className="lg:col-span-2 rounded-2xl border p-5 transition-all duration-300"
         style={{
           background: card,
           borderColor: border,

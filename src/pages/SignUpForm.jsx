@@ -8,21 +8,27 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
   const [email, setEmail] = useState('')
   const [mobile, setMobile] = useState('')
   const [college, setCollege] = useState('')
+  const [course, setCourse] = useState('B.Tech')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [showConfirmPass, setShowConfirmPass] = useState(false)
   const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-  
+
+  // Verification popup states
+  const [showVerifyModal, setShowVerifyModal] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [sentCode, setSentCode] = useState('')
+  const [verifyLoading, setVerifyLoading] = useState(false)
+
   const showToast = useToast()
 
   const handleSignUpSubmit = async (e) => {
     e.preventDefault()
-    
+
     // Clear previous errors
     const newErrors = {}
-    
+
     // Email validation regex
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
     if (!emailRegex.test(email)) {
@@ -54,14 +60,32 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
     }
 
     setErrors({})
-    setLoading(true)
 
+    // Generate mock 6-digit code
+    const code = String(Math.floor(100000 + Math.random() * 900000))
+    setSentCode(code)
+
+    // Alert the user with the mock verification code
+    showToast(`Verification code sent to ${email}! (Mock Code: ${code})`, 'success')
+    setShowVerifyModal(true)
+  }
+
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault()
+
+    if (verificationCode !== sentCode) {
+      showToast('Incorrect verification code. Please try again.', 'error')
+      return
+    }
+
+    setVerifyLoading(true)
     try {
       const payload = {
         name,
         email,
         mobile,
         college,
+        course,
         password,
         role: 'student', // default role
       }
@@ -69,6 +93,7 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
       const res = await authService.register(payload)
       if (res.success) {
         showToast(res.message || 'Registration successful!', 'success')
+        setShowVerifyModal(false)
         if (onSignUpSuccess) {
           onSignUpSuccess(email)
         }
@@ -76,12 +101,13 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
         showToast(res.message || 'Registration failed.', 'error')
         if (res.message && res.message.toLowerCase().includes('email')) {
           setErrors({ email: res.message })
+          setShowVerifyModal(false)
         }
       }
     } catch (err) {
       showToast('Something went wrong during registration.', 'error')
     } finally {
-      setLoading(false)
+      setVerifyLoading(false)
     }
   }
 
@@ -125,9 +151,8 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
               onChange={e => setEmail(e.target.value)}
               required
               className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm text-slate-700 placeholder-slate-400
-              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${
-                errors.email ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
-              }`}
+              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${errors.email ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
+                }`}
             />
           </div>
           {errors.email && (
@@ -136,7 +161,7 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
         </div>
 
         {/* Mobile & College row */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Mobile */}
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1 block">
@@ -151,9 +176,8 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
                 onChange={e => setMobile(e.target.value)}
                 required
                 className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm text-slate-700 placeholder-slate-400
-                focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${
-                  errors.mobile ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
-                }`}
+                focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${errors.mobile ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
+                  }`}
               />
             </div>
             {errors.mobile && (
@@ -181,6 +205,35 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
           </div>
         </div>
 
+        {/* Course Dropdown */}
+        <div>
+          <label className="text-xs font-semibold text-slate-600 mb-1 block">
+            Select Course
+          </label>
+          <div className="relative">
+            <GraduationCap size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <select
+              value={course}
+              onChange={e => setCourse(e.target.value)}
+              required
+              className="w-full pl-10 pr-8 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 bg-white
+              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition cursor-pointer appearance-none"
+            >
+              <option value="B.Tech">B.Tech</option>
+              <option value="M.Tech">M.Tech</option>
+              <option value="BCA">BCA</option>
+              <option value="MCA">MCA</option>
+              <option value="MBA">MBA</option>
+              <option value="B.Sc">B.Sc</option>
+              <option value="M.Sc">M.Sc</option>
+              <option value="BBA">BBA</option>
+              <option value="B.Com">B.Com</option>
+            </select>
+            {/* Custom arrow */}
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 font-bold text-[10px]">▼</div>
+          </div>
+        </div>
+
         {/* Password */}
         <div>
           <label className="text-xs font-semibold text-slate-600 mb-1 block">
@@ -195,9 +248,8 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
               onChange={e => setPassword(e.target.value)}
               required
               className={`w-full pl-10 pr-10 py-2 rounded-lg border text-sm text-slate-700 placeholder-slate-400
-              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${
-                errors.password ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
-              }`}
+              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${errors.password ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
+                }`}
             />
             <button
               type="button"
@@ -226,9 +278,8 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
               onChange={e => setConfirmPassword(e.target.value)}
               required
               className={`w-full pl-10 pr-10 py-2 rounded-lg border text-sm text-slate-700 placeholder-slate-400
-              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${
-                errors.confirmPassword ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
-              }`}
+              focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition ${errors.confirmPassword ? 'border-red-500 bg-red-50/50' : 'border-slate-200'
+                }`}
             />
             <button
               type="button"
@@ -246,24 +297,13 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
         {/* Submit */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all duration-200 relative overflow-hidden mt-2"
+          className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all duration-200 relative overflow-hidden mt-2 cursor-pointer"
           style={{
-            background: loading
-              ? '#a5b4fc'
-              : 'linear-gradient(90deg, #4f46e5, #6d28d9)',
-            boxShadow: loading ? 'none' : '0 4px 18px rgba(99,102,241,0.35)',
+            background: 'linear-gradient(90deg, #4f46e5, #6d28d9)',
+            boxShadow: '0 4px 18px rgba(99,102,241,0.35)',
           }}
         >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
-                <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-              Creating account…
-            </span>
-          ) : 'Register'}
+          Register
         </button>
 
         {/* Switch link */}
@@ -278,6 +318,72 @@ export default function SignUpForm({ onSwitchToSignIn, onSignUpSuccess }) {
           </button>
         </p>
       </form>
+
+      {/* ── EMAIL VERIFICATION MODAL ── */}
+      {showVerifyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/45 backdrop-blur-xs"
+            onClick={() => setShowVerifyModal(false)}
+          />
+
+          {/* Modal Container */}
+          <div
+            className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8"
+            style={{
+              animation: 'modalIn .25s ease-out',
+              border: '1px solid #e2e8f0'
+            }}
+          >
+            <h2 className="text-xl font-black text-slate-900 mb-2">Verify your email</h2>
+            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+              We have sent a verification code to <strong>{email}</strong>. Please enter the code below to verify your email.
+            </p>
+
+            <form onSubmit={handleVerifyAndRegister} className="flex flex-col gap-4">
+              <input
+                type="text"
+                maxLength="6"
+                placeholder="Enter 6-digit code"
+                value={verificationCode}
+                onChange={e => setVerificationCode(e.target.value)}
+                required
+                autoFocus
+                className="w-full text-center tracking-widest text-lg font-bold py-2.5 rounded-lg border border-slate-200 text-slate-700 placeholder-slate-400 placeholder:text-sm placeholder:tracking-normal focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              />
+
+              <button
+                type="submit"
+                disabled={verifyLoading}
+                className="w-full py-2.5 rounded-lg text-sm font-bold text-white transition-all duration-200 cursor-pointer"
+                style={{
+                  background: verifyLoading ? '#a5b4fc' : 'linear-gradient(90deg,#4f46e5,#6d28d9)',
+                  boxShadow: verifyLoading ? 'none' : '0 4px 14px rgba(99,102,241,0.35)',
+                }}
+              >
+                {verifyLoading ? 'Verifying & Registering…' : 'Verify & Register'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowVerifyModal(false)}
+                className="text-sm text-slate-500 hover:text-slate-700 text-center transition-colors border-none bg-transparent cursor-pointer"
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Keyframe styles */}
+      <style>{`
+        @keyframes modalIn {
+          from { opacity: 0; transform: scale(0.92) translateY(16px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+      `}</style>
     </>
   )
 }

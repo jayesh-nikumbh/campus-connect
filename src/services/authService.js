@@ -19,7 +19,7 @@ function saveMockUsers(userList) {
 }
 
 /* ── MOCK LOGIN ─────────────────────────────────────────── */
-async function mockLogin(email, password, role) {
+async function mockLogin(email, password) {
   // Simulate network delay
   await new Promise(r => setTimeout(r, 900))
 
@@ -27,12 +27,11 @@ async function mockLogin(email, password, role) {
   const user = userList.find(
     u =>
       u.email.toLowerCase() === email.toLowerCase() &&
-      u.password === password &&
-      u.role === role
+      u.password === password
   )
 
   if (!user) {
-    return { success: false, message: 'Invalid email, password, or role.' }
+    return { success: false, message: 'Invalid email or password.' }
   }
 
   // Strip password before storing
@@ -48,7 +47,7 @@ async function mockLogin(email, password, role) {
 async function mockRegister(payload) {
   // Simulate network delay
   await new Promise(r => setTimeout(r, 900))
-  const { name, email, mobile, college, password, role = 'student' } = payload
+  const { name, email, mobile, college, course, password, role = 'student' } = payload
 
   const userList = getMockUsers()
   
@@ -65,6 +64,7 @@ async function mockRegister(payload) {
     email,
     mobile,
     college,
+    course,
     password,
     role,
     avatar: name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2),
@@ -92,12 +92,12 @@ async function mockForgotPassword(email) {
 }
 
 /* ── REAL API LOGIN ─────────────────────────────────────── */
-async function apiLogin(email, password, role) {
+async function apiLogin(email, password) {
   try {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role }),
+      body: JSON.stringify({ email, password }),
     })
 
     const data = await res.json()
@@ -159,11 +159,10 @@ const authService = {
   /**
    * @param {string} email
    * @param {string} password
-   * @param {string} role  'admin' | 'organizer' | 'student'
    * @returns {Promise<{ success: boolean, user?: object, token?: string, message?: string }>}
    */
-  login: (email, password, role) =>
-    USE_MOCK ? mockLogin(email, password, role) : apiLogin(email, password, role),
+  login: (email, password) =>
+    USE_MOCK ? mockLogin(email, password) : apiLogin(email, password),
 
   register: (payload) =>
     USE_MOCK ? mockRegister(payload) : apiRegister(payload),

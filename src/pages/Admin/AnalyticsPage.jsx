@@ -55,6 +55,7 @@ export default function AnalyticsPage({ tokens }) {
   const [radarData, setRadarData] = useState([])
   const [categories, setCategories] = useState([])
   const [depts, setDepts] = useState([])
+  const [hoveredDept, setHoveredDept] = useState(null)
 
   const [loading, setLoading] = useState(true)
   const [trendLoading, setTrendLoading] = useState(false)
@@ -202,7 +203,7 @@ export default function AnalyticsPage({ tokens }) {
 
               {trendLoading ? (
                 <div className="h-[240px] flex items-center justify-center">
-                  <Loader2 className="animate-spin text-slate-400 animate-pulse" size={24} />
+                  <Loader2 className="animate-spin text-slate-400" size={24} />
                 </div>
               ) : (() => {
                 const MAX_VAL = 12
@@ -471,12 +472,12 @@ export default function AnalyticsPage({ tokens }) {
               <div className="flex items-center justify-center flex-1" style={{ minHeight: 310 }}>
                 {depts.length > 0 && (() => {
                   let accum = 0
-                  const R_PIE = 62
+                  const R_PIE = 56
                   const cxPie = 200
                   const cyPie = 150
 
                   return (
-                    <svg width="400" height="300" className="overflow-visible w-full max-w-[400px]">
+                    <svg viewBox="0 0 400 300" width="100%" height="100%" className="overflow-visible w-full max-w-[600px]">
                       {depts.map((item) => {
                         const pctVal = item.percentage
                         const startAngle = (accum / 100) * 2 * Math.PI - Math.PI / 2
@@ -506,8 +507,21 @@ export default function AnalyticsPage({ tokens }) {
                         const largeArc = pctVal > 50 ? 1 : 0
                         const d = `M ${cxPie} ${cyPie} L ${x1} ${y1} A ${R_PIE} ${R_PIE} 0 ${largeArc} 1 ${x2} ${y2} Z`
 
+                        const isHovered = hoveredDept === item.dept
+                        const dx = isHovered ? Math.cos(midAngle) * 6 : 0
+                        const dy = isHovered ? Math.sin(midAngle) * 6 : 0
+
                         return (
-                          <g key={item.dept} className="group/slice cursor-pointer">
+                          <g
+                            key={item.dept}
+                            className="group/slice cursor-pointer"
+                            onMouseEnter={() => setHoveredDept(item.dept)}
+                            onMouseLeave={() => setHoveredDept(null)}
+                            style={{
+                              transform: `translate(${dx}px, ${dy}px)`,
+                              transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
+                          >
                             {/* Slice */}
                             <path
                               d={d}
@@ -515,6 +529,16 @@ export default function AnalyticsPage({ tokens }) {
                               stroke={tokens.card}
                               strokeWidth="2"
                               className="transition-all duration-300 hover:opacity-90"
+                            />
+                            {/* Connection Line */}
+                            <path
+                              d={`M ${lx1} ${ly1} L ${lx2} ${ly2} L ${lx3} ${ly3}`}
+                              fill="none"
+                              stroke={item.color}
+                              strokeWidth="1.5"
+                              strokeDasharray="2,2"
+                              opacity="0.6"
+                              className="transition-all duration-300 group-hover/slice:opacity-100"
                             />
                             {/* Label */}
                             <text

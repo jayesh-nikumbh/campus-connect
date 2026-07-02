@@ -4,11 +4,11 @@ import { UPCOMING_EVENTS, RECENT_ACTIVITY, BRAND } from '../../../data/dashboard
 
 export default function BottomRow({ dark }) {
   return (
-    <div className="grid gap-5 mt-5" style={{ gridTemplateColumns: '2fr 1fr' }}>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
 
       {/* ── Upcoming Events ── */}
       <div
-        className="bg-white dark:bg-[#0f1e30] rounded-2xl border border-slate-200 dark:border-[#1a3050] p-5 transition-all duration-300"
+        className="lg:col-span-2 bg-white dark:bg-[#0f1e30] rounded-2xl border border-slate-200 dark:border-[#1a3050] p-5 transition-all duration-300"
         style={{ boxShadow: dark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 1px 4px rgba(0,0,0,0.06)' }}
       >
         <div className="flex items-center justify-between mb-4">
@@ -24,7 +24,7 @@ export default function BottomRow({ dark }) {
             return (
               <div
                 key={ev.id}
-                className="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl border cursor-pointer transition-all duration-200"
+                className="flex flex-wrap sm:flex-nowrap items-center gap-3.5 px-4 py-3.5 rounded-2xl border cursor-pointer transition-all duration-200"
                 style={{
                   borderColor: dark ? '#1a3050' : '#e2e8f0',
                   background: dark ? '#060e1c' : '#f8fafc',
@@ -55,7 +55,7 @@ export default function BottomRow({ dark }) {
                 </div>
 
                 {/* Count + progress */}
-                <div className="shrink-0 min-w-[160px] flex items-center gap-3">
+                <div className="w-full sm:w-auto shrink-0 sm:min-w-[160px] flex items-center gap-3 mt-2 sm:mt-0 justify-between sm:justify-start pl-16 sm:pl-0">
                   <div className="text-right min-w-[70px]">
                     <p className="text-[13px] font-extrabold text-slate-900 dark:text-[#e8f0fe] m-0">
                       {ev.registered.toLocaleString()}

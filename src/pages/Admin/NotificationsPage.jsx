@@ -272,7 +272,7 @@ export default function NotificationsPage({ tokens, notifications = [], stats = 
       {/* ── Send Notification Modal ── */}
       {sendOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-5"
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) { setSendOpen(false); resetForm() } }}
         >
           <div

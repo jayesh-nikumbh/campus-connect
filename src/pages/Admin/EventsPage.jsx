@@ -408,14 +408,16 @@ export default function EventsPage({ tokens }) {
         </div>
 
         {/* Tab & Dropdown filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           
           {/* Status Tabs */}
           <div 
-            className="flex items-center rounded-xl p-1 border h-[42px] box-border"
+            className="flex items-center rounded-xl p-1 border h-[42px] box-border overflow-x-auto max-w-full flex-nowrap"
             style={{
               borderColor: dark ? '#1a3050' : '#e2e8f0',
               background: dark ? '#0f1e30' : '#ffffff',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
             }}
           >
             {statuses.map(st => {
@@ -636,7 +638,7 @@ export default function EventsPage({ tokens }) {
       {/* ── CREATE / EDIT EVENT MODAL ── */}
       {createEditOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
           onClick={e => { if (e.target === e.currentTarget) setCreateEditOpen(false) }}
         >
           <div
@@ -694,7 +696,7 @@ export default function EventsPage({ tokens }) {
               </div>
 
               {/* Grid: Category & Venue */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
                     Category
@@ -742,7 +744,7 @@ export default function EventsPage({ tokens }) {
               </div>
 
               {/* Grid: Date & Time */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
                     Date
@@ -783,7 +785,7 @@ export default function EventsPage({ tokens }) {
               </div>
 
               {/* Grid: Capacity & Registration Deadline */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
                     Capacity
@@ -827,7 +829,7 @@ export default function EventsPage({ tokens }) {
               </div>
 
               {/* Grid: Assign Organizer & Blank */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
                     Assign Organizer
@@ -1018,7 +1020,7 @@ export default function EventsPage({ tokens }) {
       {/* ── DELETE CONFIRMATION MODAL ── */}
       {deleteConfirmOpen && selectedEvent && (
         <div
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-5 animate-fadeIn"
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
           onClick={e => { if (e.target === e.currentTarget) setDeleteConfirmOpen(false) }}
         >
           <div
@@ -1072,7 +1074,7 @@ export default function EventsPage({ tokens }) {
       {/* ── IMPORT MODAL ── */}
       {importOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-[4px] flex items-center justify-center p-5 animate-fadeIn"
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
           onClick={e => { if (e.target === e.currentTarget) setImportOpen(false) }}
         >
           <div

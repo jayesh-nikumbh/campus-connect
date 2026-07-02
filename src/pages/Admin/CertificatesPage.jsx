@@ -323,7 +323,7 @@ export default function CertificatesPage({ tokens }) {
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleAll}
-                    className="w-4 h-4 cursor-pointer accent-[#615FFF]"
+                    className="w-4 h-4 cursor-pointer accent-brand"
                   />
                 </th>
                 {['STUDENT', 'EVENT', 'ISSUED DATE', 'VERIFY CODE', 'STATUS', 'ACTIONS'].map(h => (
@@ -371,7 +371,7 @@ export default function CertificatesPage({ tokens }) {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelect(cert.id)}
-                          className="w-4 h-4 cursor-pointer accent-[#615FFF]"
+                          className="w-4 h-4 cursor-pointer accent-brand"
                         />
                       </td>
                       <td className="px-5 py-4">
@@ -458,7 +458,7 @@ export default function CertificatesPage({ tokens }) {
       {/* ── Certificate Preview Modal ── */}
       {previewCert && (
         <div
-          className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-5"
+          className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setPreviewCert(null) }}
         >
           <div
@@ -568,7 +568,7 @@ export default function CertificatesPage({ tokens }) {
       {/* ── Verify Modal ── */}
       {verifyOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setVerifyOpen(false) }}
         >
           <div
@@ -661,7 +661,7 @@ export default function CertificatesPage({ tokens }) {
       )}
       {/* ── Certificate Template Designer ── */}
       {designerOpen && (
-        <div className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-110 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div
             className="rounded-[24px] w-full flex overflow-hidden"
             style={{

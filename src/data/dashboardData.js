@@ -1,9 +1,9 @@
 import {
-  LayoutDashboard, ClipboardList, Award,
-  ChartColumn, Bell, Database, Settings,
+  LayoutDashboard, Award,
+  ChartColumn, Bell, Settings,
   GraduationCap, Building2, CalendarDays, SquareCheckBig,
   UserPlus, CheckSquare, Calendar,
-  SendHorizonal, XCircle,
+  SendHorizonal, XCircle, Trophy,
 } from 'lucide-react'
 
 export const BRAND = '#615FFF'
@@ -11,7 +11,7 @@ export const BRAND = '#615FFF'
 export const NAV = [
   { icon: LayoutDashboard, label: 'Dashboard' },
   { icon: CalendarDays,    label: 'Events' },
-  { icon: ClipboardList,   label: 'Registrations' },
+  { icon: Trophy,          label: 'Results' },
   { icon: SquareCheckBig,  label: 'Attendance' },
   { icon: ChartColumn,     label: 'Analytics' },
   { icon: Award,           label: 'Certificates' },
