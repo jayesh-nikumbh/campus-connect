@@ -31,6 +31,8 @@ function getMockEvents() {
       const parsed = JSON.parse(stored)
       return parsed.map(e => ({
         ...e,
+        eventType: e.eventType || 'Individual',
+        approvalStatus: e.approvalStatus || 'Approved',
         time: e.time || '09:00',
         qrAttendance: e.qrAttendance || 'Enabled',
         description: e.description || `${e.name} is an interactive campus event designed to foster learning, collaboration, and networking among students and faculty members.`,
@@ -84,6 +86,8 @@ async function mockCreateEvent(payload) {
     name: payload.name || 'Untitled Event',
     organizer: payload.organizer || 'Unknown Organizer',
     category: payload.category || 'General',
+    eventType: payload.eventType || 'Individual',
+    approvalStatus: payload.approvalStatus || 'Approved',
     venue: payload.venue || 'TBD',
     date: payload.date || new Date().toISOString().split('T')[0],
     time: payload.time || '09:00',
@@ -123,6 +127,8 @@ async function mockUpdateEvent(id, payload) {
     name: payload.name !== undefined ? payload.name : events[idx].name,
     organizer: payload.organizer !== undefined ? payload.organizer : events[idx].organizer,
     category: payload.category !== undefined ? payload.category : events[idx].category,
+    eventType: payload.eventType !== undefined ? payload.eventType : events[idx].eventType,
+    approvalStatus: payload.approvalStatus !== undefined ? payload.approvalStatus : events[idx].approvalStatus,
     venue: payload.venue !== undefined ? payload.venue : events[idx].venue,
     date: payload.date !== undefined ? payload.date : events[idx].date,
     time: payload.time !== undefined ? payload.time : events[idx].time,

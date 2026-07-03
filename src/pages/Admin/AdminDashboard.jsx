@@ -25,7 +25,7 @@ import NotificationPanel from '../../components/admin/adminDashboard/Notificatio
 export default function AdminDashboard() {
   const { user, logout } = useAuth()
   const showToast = useToast()
-  const { dark, toggleDark } = useTheme()
+  const { dark, toggleDark, accentColor } = useTheme()
   const [activeNav, setActiveNav] = useState('Dashboard')
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -123,6 +123,7 @@ export default function AdminDashboard() {
   /* ── Theme tokens (shared via prop) ── */
   const tokens = {
     dark,
+    brand: accentColor || BRAND,
     bg: dark ? '#060e1c' : '#f4f6fa',        // deepest dark base
     sidebar: dark ? '#0c1829' : '#ffffff',          // sidebar — distinct from bg
     header: dark ? '#0c1829' : '#ffffff',
@@ -280,7 +281,7 @@ export default function AdminDashboard() {
 
       {/* ── LOGOUT CONFIRMATION MODAL ── */}
       {showLogoutModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center px-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"

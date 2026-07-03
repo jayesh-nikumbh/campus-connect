@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Users, Award, Mail, Lock, Eye, EyeOff,
   GraduationCap, Wifi, X, KeyRound, CalendarDays,
@@ -167,7 +167,7 @@ function Morphing3DHeadline() {
       }}
     >
       <Icon size={22} className="text-white shrink-0" />
-      <span className={`bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent font-extrabold tracking-wide text-2xl`}>
+      <span className={`bg-linear-to-r ${item.gradient} bg-clip-text text-transparent font-extrabold tracking-wide text-2xl`}>
         {item.text}
       </span>
     </span>
@@ -386,7 +386,7 @@ export default function LoginPage() {
           <div className="w-full max-w-[430px] relative z-10 bg-white rounded-3xl border border-slate-200/80 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_25px_70px_-15px_rgba(99,102,241,0.1)]">
             
             {/* Top Gradient Decorative Accent Bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500" />
+            <div className="h-1.5 w-full bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500" />
 
             <div className="p-8 sm:p-10">
               <div

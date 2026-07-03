@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { 
   Search, Plus, Upload, Download, Eye, Pencil, Trash2, X, Check, XCircle,
-  Calendar, MapPin, Users, Loader2, ArrowUpDown, RefreshCw,
-  TrendingUp, AlertTriangle, FileSpreadsheet, ChevronLeft,
+  Calendar, MapPin, Users, Loader2,
+  TrendingUp, AlertTriangle, FileSpreadsheet, ChevronLeft, ChevronRight,
   CheckCircle2, Award, BarChart2, Image, FileText, Clock
 } from 'lucide-react'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import eventsService from '../../services/eventsService'
 import { useToast } from '../../context/ToastContext'
 
 export default function EventsPage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
 
   const [events, setEvents] = useState([])
@@ -19,6 +20,10 @@ export default function EventsPage({ tokens }) {
   const [activeStatus, setActiveStatus] = useState('All')
   const [activeCategory, setActiveCategory] = useState('All')
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+
   // Modals state
   const [createEditOpen, setCreateEditOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null) // For editing or viewing
@@ -26,12 +31,19 @@ export default function EventsPage({ tokens }) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
   const [viewingDetailEvent, setViewingDetailEvent] = useState(null)
+  const [approvalConfirmModal, setApprovalConfirmModal] = useState({
+    open: false,
+    event: null,
+    targetStatus: 'Approved'
+  })
 
   // Form state
   const [formState, setFormState] = useState({
     name: '',
     organizer: '',
     category: 'Technical',
+    eventType: 'Individual', // Individual, Team, Group, Both
+    approvalStatus: 'Approved', // Approved, Rejected
     venue: '',
     date: '',
     time: '09:00',
@@ -64,8 +76,24 @@ export default function EventsPage({ tokens }) {
     loadEvents()
   }, [])
 
-  // Categories list derived from events + standard defaults
+  // Quick Admin Approval Toggle
+  const handleToggleApproval = async (event, newStatus, e) => {
+    if (e) e.stopPropagation()
+    const res = await eventsService.update(event.id, { approvalStatus: newStatus })
+    if (res.success) {
+      showToast(`Event ${event.id} marked as ${newStatus}.`, 'success')
+      setEvents(prev => prev.map(evt => evt.id === event.id ? { ...evt, approvalStatus: newStatus } : evt))
+      if (viewingDetailEvent && viewingDetailEvent.id === event.id) {
+        setViewingDetailEvent(prev => ({ ...prev, approvalStatus: newStatus }))
+      }
+    } else {
+      showToast('Failed to update approval status.', 'error')
+    }
+  }
+
+  // Categories & Event Types
   const categories = ['All', 'Technical', 'Cultural', 'Seminar', 'Sports', 'Academic', 'Workshop']
+  const eventTypes = ['Individual', 'Team', 'Group', 'Both']
   const statuses = ['All', 'Upcoming', 'Draft', 'Ongoing', 'Completed', 'Cancelled']
 
   // Filter events
@@ -78,10 +106,23 @@ export default function EventsPage({ tokens }) {
     const idMatch = event.id.toLowerCase().includes(searchLower)
     const organizerMatch = event.organizer.toLowerCase().includes(searchLower)
     const venueMatch = event.venue.toLowerCase().includes(searchLower)
-    const searchMatch = searchQuery === '' || nameMatch || idMatch || organizerMatch || venueMatch
+    const typeMatch = (event.eventType || '').toLowerCase().includes(searchLower)
+    const searchMatch = searchQuery === '' || nameMatch || idMatch || organizerMatch || venueMatch || typeMatch
 
     return statusMatch && categoryMatch && searchMatch
   })
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, activeStatus, activeCategory])
+
+  // Pagination Calculations
+  const totalItems = filteredEvents.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+  const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage)
 
   // Open Create Modal
   const handleOpenCreate = () => {
@@ -90,6 +131,8 @@ export default function EventsPage({ tokens }) {
       name: '',
       organizer: '',
       category: 'Technical',
+      eventType: 'Individual',
+      approvalStatus: 'Approved',
       venue: '',
       date: '',
       time: '',
@@ -113,6 +156,8 @@ export default function EventsPage({ tokens }) {
       name: event.name,
       organizer: event.organizer,
       category: event.category,
+      eventType: event.eventType || 'Individual',
+      approvalStatus: event.approvalStatus || 'Approved',
       venue: event.venue,
       date: event.date,
       time: event.time || '09:00',
@@ -151,6 +196,35 @@ export default function EventsPage({ tokens }) {
       loadEvents()
     } else {
       showToast('Failed to delete event.', 'error')
+    }
+  }
+
+  // Admin Approval Modal Trigger
+  const handleOpenApprovalConfirm = (event, targetStatus, e) => {
+    if (e) e.stopPropagation()
+    // If event is already approved and user tries to reject it, disallow
+    if ((event.approvalStatus || 'Approved') === 'Approved' && targetStatus === 'Rejected') {
+      showToast('Approved events cannot be rejected.', 'error')
+      return
+    }
+    setApprovalConfirmModal({ open: true, event, targetStatus })
+  }
+
+  // Admin Approval Confirmation Action
+  const handleConfirmApprovalStatus = async () => {
+    const { event, targetStatus } = approvalConfirmModal
+    if (!event) return
+    const payload = {
+      ...event,
+      approvalStatus: targetStatus,
+    }
+    const res = await eventsService.update(event.id, payload)
+    if (res.success) {
+      showToast(`Event "${event.name}" ${targetStatus === 'Approved' ? 'approved' : 'rejected'} successfully.`, 'success')
+      setApprovalConfirmModal({ open: false, event: null, targetStatus: 'Approved' })
+      loadEvents()
+    } else {
+      showToast(res.message || 'Failed to update approval status.', 'error')
     }
   }
 
@@ -482,12 +556,12 @@ export default function EventsPage({ tokens }) {
               <tr style={{ borderBottom: `1px solid ${dark ? '#1a3050' : '#e2e8f0'}` }}>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>EVENT ID</th>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>EVENT NAME</th>
-                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>CATEGORY</th>
+                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>CATEGORY & TYPE</th>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>VENUE</th>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>DATE</th>
-                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>CAPACITY</th>
-                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>REGISTRATIONS</th>
+                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>REGISTRATION & CAPACITY</th>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>STATUS</th>
+                <th className="px-5 py-4 text-[11px] font-bold tracking-wider" style={{ color: dark ? '#7a98bb' : '#64748b' }}>ADMIN APPROVAL</th>
                 <th className="px-5 py-4 text-[11px] font-bold tracking-wider text-right" style={{ color: dark ? '#7a98bb' : '#64748b' }}>ACTIONS</th>
               </tr>
             </thead>
@@ -504,11 +578,11 @@ export default function EventsPage({ tokens }) {
                     <td className="px-5 py-4"><div className="w-16 h-3.5 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="px-5 py-4"><div className="w-28 h-3.5 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="px-5 py-4"><div className="w-20 h-3.5 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
-                    <td className="px-5 py-4"><div className="w-10 h-3.5 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="px-5 py-4">
                       <div className="w-32 h-2 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" />
                     </td>
                     <td className="px-5 py-4"><div className="w-16 h-5 rounded-full bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
+                    <td className="px-5 py-4"><div className="w-20 h-6 rounded-full bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="px-5 py-4"><div className="w-16 h-7 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse ml-auto" /></td>
                   </tr>
                 ))
@@ -520,15 +594,17 @@ export default function EventsPage({ tokens }) {
                   </td>
                 </tr>
               ) : (
-                filteredEvents.map((event, i) => {
-                  const regPercent = Math.min(Math.round((event.registrationsCount / event.capacity) * 100), 100)
+                paginatedEvents.map((event, i) => {
+                  const isApproved = (event.approvalStatus || 'Approved') === 'Approved'
+                  const effectiveRegCount = isApproved ? (event.registrationsCount || 0) : 0
+                  const regPercent = isApproved && event.capacity ? Math.min(Math.round((effectiveRegCount / event.capacity) * 100), 100) : 0
                   const badge = getStatusBadgeStyles(event.status)
                   
                   return (
                     <tr 
                       key={event.id}
                       className="transition-colors duration-150 hover:bg-slate-50/50 dark:hover:bg-[#162640]/20"
-                      style={{ borderBottom: i < filteredEvents.length - 1 ? `1px solid ${dark ? '#1a3050' : '#e2e8f0'}` : 'none' }}
+                      style={{ borderBottom: i < paginatedEvents.length - 1 ? `1px solid ${dark ? '#1a3050' : '#e2e8f0'}` : 'none' }}
                     >
                       {/* ID */}
                       <td className="px-5 py-4 text-[13px] font-bold" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
@@ -541,9 +617,20 @@ export default function EventsPage({ tokens }) {
                         <div className="text-[11px] mt-0.5 font-medium" style={{ color: dark ? '#7a98bb' : '#64748b' }}>{event.organizer}</div>
                       </td>
 
-                      {/* Category */}
-                      <td className="px-5 py-4 text-[13px] font-semibold" style={{ color: dark ? '#e8f0fe' : '#334155' }}>
-                        {event.category}
+                      {/* Category & Type */}
+                      <td className="px-5 py-4">
+                        <div className="text-[13px] font-semibold" style={{ color: dark ? '#e8f0fe' : '#334155' }}>
+                          {event.category}
+                        </div>
+                        <span
+                          className="mt-1 inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase"
+                          style={{
+                            background: dark ? `${BRAND}20` : `${BRAND}12`,
+                            color: BRAND
+                          }}
+                        >
+                          {event.eventType || 'Individual'}
+                        </span>
                       </td>
 
                       {/* Venue */}
@@ -556,26 +643,24 @@ export default function EventsPage({ tokens }) {
                         {event.date}
                       </td>
 
-                      {/* Capacity */}
-                      <td className="px-5 py-4 text-[13px] font-semibold" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
-                        {event.capacity}
-                      </td>
-
-                      {/* Registrations Progress Bar */}
+                      {/* Combined Registrations & Capacity */}
                       <td className="px-5 py-4 min-w-[150px]">
-                        <div className="flex items-center gap-3">
-                          <span className="text-[13px] font-bold min-w-[24px]" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
-                            {event.registrationsCount}
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-[13px] font-extrabold" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
+                            {effectiveRegCount} <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">/ {event.capacity}</span>
                           </span>
-                          <div className="flex-1 h-1.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-                            <div 
-                              className="h-full rounded-full transition-all duration-300"
-                              style={{ 
-                                width: `${regPercent}%`, 
-                                background: BRAND 
-                              }}
-                            />
-                          </div>
+                          <span className="text-[10.5px] font-bold text-slate-400 dark:text-slate-500">
+                            {regPercent}%
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                          <div 
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{ 
+                              width: `${regPercent}%`, 
+                              background: isApproved ? BRAND : (dark ? '#334155' : '#cbd5e1') 
+                            }}
+                          />
                         </div>
                       </td>
 
@@ -587,6 +672,40 @@ export default function EventsPage({ tokens }) {
                         >
                           {event.status}
                         </span>
+                      </td>
+
+                      {/* Admin Approval Switch / Badge */}
+                      <td className="px-5 py-4">
+                        {isApproved ? (
+                          <span 
+                            className="px-3 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 border bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 cursor-default w-fit"
+                            title="Approved (Decision Locked)"
+                          >
+                            <Check size={12} strokeWidth={3} />
+                            Approved
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={(e) => handleOpenApprovalConfirm(event, 'Approved', e)}
+                              title="Click to Approve Event"
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold cursor-pointer transition-all flex items-center gap-1 border bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                            >
+                              <Check size={11} strokeWidth={3} />
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleOpenApprovalConfirm(event, 'Rejected', e)}
+                              title="Click to Reject Event"
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold cursor-pointer transition-all flex items-center gap-1 border bg-red-500/15 border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/20"
+                            >
+                              <X size={11} strokeWidth={3} />
+                              Rejected
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                       {/* Actions */}
@@ -632,6 +751,88 @@ export default function EventsPage({ tokens }) {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Table Pagination Bar ── */}
+        <div 
+          className="flex items-center justify-between flex-wrap gap-4 px-6 py-4"
+          style={{ borderTop: `1px solid ${dark ? '#1a3050' : '#e2e8f0'}` }}
+        >
+          {/* Showing status & Items per page */}
+          <div className="flex items-center gap-4">
+            <span className="text-[12.5px] font-medium" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+              Showing <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems > 0 ? startIndex + 1 : 0}</strong> to{' '}
+              <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{endIndex}</strong> of{' '}
+              <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems}</strong> entries
+            </span>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500">Per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={e => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-2.5 py-1 rounded-lg text-[12px] font-bold outline-none cursor-pointer border"
+                style={{
+                  background: dark ? '#0f1e30' : '#ffffff',
+                  borderColor: dark ? '#1a3050' : '#cbd5e1',
+                  color: dark ? '#e8f0fe' : '#334155'
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Pagination Page Controls */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{
+                borderColor: dark ? '#1a3050' : '#e2e8f0',
+                color: dark ? '#e8f0fe' : '#475569'
+              }}
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+              const active = page === currentPage
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className="w-8 h-8 rounded-lg text-[12.5px] font-extrabold cursor-pointer transition-all border-none"
+                  style={{
+                    background: active ? BRAND : (dark ? '#0f1e30' : '#f1f5f9'),
+                    color: active ? '#ffffff' : (dark ? '#7a98bb' : '#475569'),
+                    boxShadow: active ? '0 3px 10px rgba(97,95,255,0.3)' : 'none'
+                  }}
+                >
+                  {page}
+                </button>
+              )
+            })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{
+                borderColor: dark ? '#1a3050' : '#e2e8f0',
+                color: dark ? '#e8f0fe' : '#475569'
+              }}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -740,6 +941,61 @@ export default function EventsPage({ tokens }) {
                     onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
                   />
                   {formErrors.venue && <span className="text-[11px] text-red-500 mt-1.5 block">{formErrors.venue}</span>}
+                </div>
+              </div>
+
+              {/* Grid: Event Type (Participation) & Admin Approval */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
+                    Participation Type (Individual / Team / Group)
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formState.eventType || 'Individual'}
+                      onChange={e => setFormState(p => ({ ...p, eventType: e.target.value }))}
+                      className="w-full pl-4 pr-10 py-3 rounded-xl text-[13.5px] outline-none cursor-pointer border appearance-none transition-all duration-200 font-semibold"
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
+                      onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                    >
+                      {eventTypes.map(t => (
+                        <option key={t} value={t}>{t} Event</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path d="M1 1.5L5 4.5L9 1.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
+                    Admin Approval Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formState.approvalStatus || 'Approved'}
+                      onChange={e => setFormState(p => ({ ...p, approvalStatus: e.target.value }))}
+                      className="w-full pl-4 pr-10 py-3 rounded-xl text-[13.5px] outline-none cursor-pointer border appearance-none transition-all duration-200 font-bold"
+                      style={{
+                        ...inputStyle,
+                        color: (formState.approvalStatus || 'Approved') === 'Approved' ? '#10b981' : '#ef4444'
+                      }}
+                      onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
+                      onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                    >
+                      <option value="Approved" className="text-emerald-500 font-bold">Approved</option>
+                      <option value="Rejected" className="text-red-500 font-bold">Rejected</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                        <path d="M1 1.5L5 4.5L9 1.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1065,7 +1321,77 @@ export default function EventsPage({ tokens }) {
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.4)' }}
               >
                 Delete
-              </button>.
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── APPROVAL CONFIRMATION MODAL ── */}
+      {approvalConfirmModal.open && approvalConfirmModal.event && (
+        <div
+          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
+          onClick={e => { if (e.target === e.currentTarget) setApprovalConfirmModal({ open: false, event: null, targetStatus: 'Approved' }) }}
+        >
+          <div
+            className="rounded-[20px] w-full max-w-[400px] overflow-hidden"
+            style={{
+              background: dark ? '#0c1829' : '#ffffff',
+              border: `1px solid ${dark ? '#1a3050' : '#e8edf5'}`,
+              boxShadow: '0 32px 80px rgba(0,0,0,0.45)',
+              animation: 'slideUp 0.25s cubic-bezier(0.4,0,0.2,1)',
+            }}
+          >
+            {/* Body */}
+            <div className="px-6 py-6 flex flex-col items-center text-center">
+              <div className={`w-[50px] h-[50px] rounded-full flex items-center justify-center mb-4 ${
+                approvalConfirmModal.targetStatus === 'Approved' 
+                  ? 'bg-emerald-500/10 text-emerald-500' 
+                  : 'bg-red-500/10 text-red-500'
+              }`}>
+                {approvalConfirmModal.targetStatus === 'Approved' ? (
+                  <CheckCircle2 size={26} />
+                ) : (
+                  <AlertTriangle size={24} />
+                )}
+              </div>
+              <h3 className="text-[17px] font-extrabold m-0 mb-2" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
+                {approvalConfirmModal.targetStatus === 'Approved' ? 'Approve Event?' : 'Reject Event?'}
+              </h3>
+              <p className="text-[13px] leading-relaxed m-0" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+                Are you sure you want to {approvalConfirmModal.targetStatus === 'Approved' ? 'approve' : 'reject'}{' '}
+                <strong style={{ color: dark ? '#e8f0fe' : '#334155' }}>{approvalConfirmModal.event.name}</strong>?
+                {approvalConfirmModal.targetStatus === 'Approved' && ' Once approved, this decision cannot be reverted.'}
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3 px-6 py-4" style={{ borderTop: `1px solid ${dark ? '#1a3050' : '#e8edf5'}` }}>
+              <button
+                onClick={() => setApprovalConfirmModal({ open: false, event: null, targetStatus: 'Approved' })}
+                className="flex-1 py-2.5 rounded-[10px] text-[13px] font-semibold bg-transparent transition-all duration-150 border cursor-pointer"
+                style={{ borderColor: dark ? '#1a3050' : '#e2e8f0', color: dark ? '#7a98bb' : '#64748b' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = BRAND; e.currentTarget.style.color = BRAND }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.currentTarget.style.color = dark ? '#7a98bb' : '#64748b' }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleConfirmApprovalStatus}
+                className={`flex-1 py-2.5 rounded-[10px] text-[13px] font-bold text-white border-none cursor-pointer transition-all duration-200 ${
+                  approvalConfirmModal.targetStatus === 'Approved'
+                    ? 'bg-emerald-600 hover:bg-emerald-500'
+                    : 'bg-red-500 hover:bg-red-600'
+                }`}
+                style={{ 
+                  boxShadow: approvalConfirmModal.targetStatus === 'Approved'
+                    ? '0 4px 14px rgba(16, 185, 129, 0.4)'
+                    : '0 4px 14px rgba(239, 68, 68, 0.4)'
+                }}
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
@@ -1164,6 +1490,7 @@ export default function EventsPage({ tokens }) {
 // ─────────────────────────────────────────────────────────────────
 function EventDetailView({ event, onBack, onEdit, tokens, showToast }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const [activeTab, setActiveTab] = useState('Overview')
   const [registrations, setRegistrations] = useState([])
   const [loadingRegs, setLoadingRegs] = useState(false)
@@ -1257,8 +1584,10 @@ function EventDetailView({ event, onBack, onEdit, tokens, showToast }) {
   }
 
   const badge = getStatusStyle(event.status)
-  const regPercent = Math.min(Math.round((event.registrationsCount / event.capacity) * 100), 100)
-  const remaining = Math.max(event.capacity - event.registrationsCount, 0)
+  const isApproved = (event.approvalStatus || 'Approved') === 'Approved'
+  const effectiveRegs = isApproved ? (event.registrationsCount || 0) : 0
+  const regPercent = isApproved && event.capacity ? Math.min(Math.round((effectiveRegs / event.capacity) * 100), 100) : 0
+  const remaining = isApproved ? Math.max(event.capacity - effectiveRegs, 0) : event.capacity
 
   // Sub-tabs list
   const tabs = ['Overview', 'Registrations', 'Attendance', 'Analytics', 'Certificates', 'Gallery']
@@ -1284,7 +1613,7 @@ function EventDetailView({ event, onBack, onEdit, tokens, showToast }) {
           </button>
           
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[22px] font-extrabold m-0 leading-tight">
                 {event.name}
               </h1>
@@ -1293,6 +1622,24 @@ function EventDetailView({ event, onBack, onEdit, tokens, showToast }) {
                 style={{ background: badge.bg, color: badge.text }}
               >
                 {event.status}
+              </span>
+              <span 
+                className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider"
+                style={{ 
+                  background: dark ? `${BRAND}25` : `${BRAND}15`, 
+                  color: BRAND 
+                }}
+              >
+                {event.eventType || 'Individual'} Event
+              </span>
+              <span 
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                  (event.approvalStatus || 'Approved') === 'Approved'
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-red-500/15 border-red-500/30 text-red-600 dark:text-red-400'
+                }`}
+              >
+                Admin {(event.approvalStatus || 'Approved')}
               </span>
             </div>
             <p className="text-[12px] mt-1 mb-0 font-semibold" style={{ color: dark ? '#7a98bb' : '#64748b' }}>

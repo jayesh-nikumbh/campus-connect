@@ -1,17 +1,31 @@
 import React, { useState } from 'react'
-import { GraduationCap, ChevronLeft, LogOut } from 'lucide-react'
-import { TextAlignJustify } from 'lucide-react'
-import { NAV } from '../../../data/dashboardData'
-import { useTheme } from '../../../context/ThemeContext'
+import {
+  LayoutDashboard,
+  CalendarDays,
+  SquareCheckBig,
+  Award,
+  ChevronLeft,
+  LogOut,
+  GraduationCap,
+  TextAlignJustify,
+  Bell
+} from 'lucide-react'
+import { useTheme } from '../../context/ThemeContext'
 
-export default function DashboardSidebar({
+export const STUDENT_NAV = [
+  { icon: LayoutDashboard, label: 'Dashboard' },
+  { icon: SquareCheckBig,  label: 'Attendance' },
+  { icon: CalendarDays,    label: 'Events' },
+  { icon: Award,           label: 'Certificates' },
+]
+
+export default function StudentSidebar({
   collapsed,
   setCollapsed,
   activeNav,
   setActiveNav,
   dark,
   onLogout,
-  unreadCount,
   user,
   sidebarOpen,
   setSidebarOpen,
@@ -20,6 +34,7 @@ export default function DashboardSidebar({
   const { accentColor } = useTheme()
   const BRAND = accentColor || '#615FFF'
   const [logoHover, setLogoHover] = useState(false)
+
   return (
     <aside
       style={{
@@ -48,6 +63,7 @@ export default function DashboardSidebar({
           className="flex items-center gap-2.5 min-w-0 cursor-pointer"
           onMouseEnter={() => setLogoHover(true)}
           onMouseLeave={() => setLogoHover(false)}
+          onClick={() => setActiveNav('Dashboard')}
         >
           <div
             className="w-[38px] h-[38px] rounded-[10px] shrink-0 flex items-center justify-center shadow-md"
@@ -74,15 +90,20 @@ export default function DashboardSidebar({
             style={{ opacity: (collapsed && !isMobile) ? 0 : 1, width: (collapsed && !isMobile) ? 0 : 'auto' }}
           >
             <span
-              className="text-[15px] font-extrabold leading-none"
+              className="text-[15px] font-extrabold leading-none text-slate-900 dark:text-slate-100"
               style={{
                 color: logoHover ? BRAND : undefined,
                 transition: 'color 0.25s ease',
               }}
-            >EventHub</span>
-            <span className="text-[11px] font-medium leading-none text-slate-400 dark:text-[#4a6a8a]">Admin Portal</span>
+            >
+              EventHub
+            </span>
+            <span className="text-[11px] font-medium leading-none text-slate-400 dark:text-[#4a6a8a]">
+              Student Portal
+            </span>
           </div>
         </div>
+
         {!collapsed && !isMobile && (
           <button
             onClick={() => setCollapsed(true)}
@@ -103,7 +124,7 @@ export default function DashboardSidebar({
 
       {/* Nav Items */}
       <nav
-        className="flex-1 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden transition-[padding] duration-300"
+        className="flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden transition-[padding] duration-300"
         style={{ padding: (collapsed && !isMobile) ? '12px 10px' : '16px 14px' }}
       >
         {collapsed && !isMobile && (
@@ -116,9 +137,8 @@ export default function DashboardSidebar({
           </button>
         )}
 
-        {NAV.map(({ icon: Icon, label, badge }) => {
+        {STUDENT_NAV.map(({ icon: Icon, label }) => {
           const active = activeNav === label
-          const displayBadge = label === 'Notifications' ? unreadCount : badge
           const isCollapsedView = collapsed && !isMobile
           return (
             <button
@@ -128,33 +148,25 @@ export default function DashboardSidebar({
                 if (isMobile) setSidebarOpen(false)
               }}
               title={isCollapsedView ? label : ''}
-              className="flex items-center rounded-[10px] text-[13px] font-semibold border-none cursor-pointer w-full relative transition-all duration-150"
+              className="flex items-center rounded-[12px] text-[13.5px] font-semibold border-none cursor-pointer w-full relative transition-all duration-150"
               style={{
                 justifyContent: isCollapsedView ? 'center' : 'flex-start',
                 gap: isCollapsedView ? 0 : 12,
-                padding: isCollapsedView ? '11px' : '10px 14px',
+                padding: isCollapsedView ? '11px' : '11px 14px',
                 background: active ? `${BRAND}18` : 'transparent',
                 color: active ? BRAND : undefined,
               }}
-              onMouseEnter={e => { if (!active) {e.currentTarget.style.background = dark ? '#162640' : '#f1f5f9'} }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = dark ? '#162640' : '#f1f5f9' } }}
               onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
             >
-              <Icon size={18} className="shrink-0" style={{ color: active ? BRAND : '#7a98bb' }} />
+              <Icon size={19} className="shrink-0" style={{ color: active ? BRAND : (dark ? '#7a98bb' : '#64748b') }} />
               {!isCollapsedView && (
                 <span
-                  className="whitespace-nowrap overflow-hidden text-ellipsis text-slate-500 dark:text-[#7a98bb]"
+                  className="whitespace-nowrap overflow-hidden text-ellipsis text-slate-600 dark:text-[#7a98bb]"
                   style={{ color: active ? BRAND : undefined }}
                 >
                   {label}
                 </span>
-              )}
-              {displayBadge > 0 && !isCollapsedView && (
-                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: BRAND }}>
-                  {displayBadge}
-                </span>
-              )}
-              {displayBadge > 0 && isCollapsedView && (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: BRAND }} />
               )}
             </button>
           )
@@ -176,29 +188,32 @@ export default function DashboardSidebar({
             className="w-[38px] h-[38px] rounded-full shrink-0 flex items-center justify-center text-white text-[12px] font-bold border-none cursor-pointer hover:opacity-85 transition-opacity"
             style={{ background: BRAND }}
           >
-            {user?.avatar || 'DP'}
+            {user?.avatar || (user?.name ? user.name.substring(0, 2).toUpperCase() : 'ST')}
           </button>
         ) : (
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-[38px] h-[38px] rounded-full shrink-0 flex items-center justify-center text-white text-[12px] font-bold" style={{ background: BRAND }}>
-                {user?.avatar || 'DP'}
+              <div
+                className="w-[38px] h-[38px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-bold shadow-xs"
+                style={{ background: BRAND }}
+              >
+                {user?.avatar || (user?.name ? user.name.substring(0, 2).toUpperCase() : 'ST')}
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-[13.5px] font-bold text-slate-800 dark:text-[#e8f0fe] truncate">
-                  {user?.name || 'Dr. Priya Sharma'}
+                  {user?.name || 'Arjun Sharma'}
                 </span>
-                <span className="text-[11px] font-semibold text-slate-400 dark:text-[#4a6a8a] mt-0.5">
-                  {user?.role || 'Admin'}
+                <span className="text-[11px] font-semibold text-slate-400 dark:text-[#4a6a8a] truncate">
+                  {user?.department || 'Student'}
                 </span>
               </div>
             </div>
             <button
               onClick={onLogout}
-              title="Logout"
+              title="Sign Out"
               className="flex items-center justify-center w-8 h-8 rounded-lg border-none bg-transparent cursor-pointer text-slate-400 dark:text-[#4a6a8a] hover:text-red-500 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-[#162640] transition-all duration-150"
             >
-              <LogOut size={16} />
+              <LogOut size={17} />
             </button>
           </div>
         )}

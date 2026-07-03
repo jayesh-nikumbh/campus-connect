@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import attendanceService from '../../services/attendanceService'
 import { ATTENDANCE_EVENTS, ATTENDANCE_SESSIONS } from '../../data/attendanceData'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import { useToast } from '../../context/ToastContext'
 
 /* ─── tiny QR placeholder SVG ─── */
@@ -23,7 +23,7 @@ function QrPlaceholder({ size = 140, color = '#615FFF' }) {
       <rect x="18" y="94" width="28" height="28" rx="3" fill={color} opacity=".25"/>
       <rect x="80" y="80" width="14" height="14" rx="2" fill={color}/>
       <rect x="100" y="80" width="14" height="14" rx="2" fill={color}/>
-      <rect x="120" y="80" width="16" height="14" rx="2" fill={color}/>
+      <rect x="120" y="16" width="2" height="14" rx="2" fill={color}/>
       <rect x="80" y="100" width="14" height="14" rx="2" fill={color}/>
       <rect x="100" y="100" width="36" height="14" rx="2" fill={color}/>
       <rect x="80" y="120" width="30" height="16" rx="2" fill={color}/>
@@ -74,6 +74,7 @@ const TABS = [
 
 export default function AttendancePage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
 
   /* shared state */

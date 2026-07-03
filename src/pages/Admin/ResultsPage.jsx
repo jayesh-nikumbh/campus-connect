@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import {
   Search, Download, Check, X, Eye, FileText,
-  Loader2, Trophy, Users, User, Award, Plus, Edit3, Trash2, Calendar
+  Loader2, Trophy, Users, User, Award, Plus, Edit3, Trash2, Calendar, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import resultsService from '../../services/resultsService'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import { useToast } from '../../context/ToastContext'
 
 export default function ResultsPage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
 
   const [results, setResults] = useState([])
@@ -16,6 +17,10 @@ export default function ResultsPage({ tokens }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('All') // 'All', 'Solo', 'Team'
   const [selectedEvent, setSelectedEvent] = useState('All')
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   
   // Modals state
   const [formOpen, setFormOpen] = useState(false)
@@ -79,6 +84,18 @@ export default function ResultsPage({ tokens }) {
 
     return typeMatch && eventMatch && searchMatch
   })
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, activeTab, selectedEvent])
+
+  // Pagination Calculations
+  const totalItems = filteredResults.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+  const paginatedResults = filteredResults.slice(startIndex, startIndex + itemsPerPage)
 
   // Open Form for Adding New Result
   const handleOpenAddModal = () => {
@@ -213,40 +230,6 @@ export default function ResultsPage({ tokens }) {
     }
   }
 
-  // Rank badge styling
-  const getRankBadgeStyle = (rankNum) => {
-    switch (Number(rankNum)) {
-      case 1:
-        return {
-          bg: dark ? 'rgba(217, 119, 6, 0.2)' : '#fef3c7',
-          text: '#d97706',
-          border: dark ? '1px solid rgba(217, 119, 6, 0.4)' : '1px solid #fde68a',
-          label: 'Gold (1st)'
-        }
-      case 2:
-        return {
-          bg: dark ? 'rgba(100, 116, 139, 0.2)' : '#f1f5f9',
-          text: dark ? '#cbd5e1' : '#475569',
-          border: dark ? '1px solid rgba(100, 116, 139, 0.4)' : '1px solid #cbd5e1',
-          label: 'Silver (2nd)'
-        }
-      case 3:
-        return {
-          bg: dark ? 'rgba(180, 83, 9, 0.15)' : '#ffedd5',
-          text: '#b45309',
-          border: dark ? '1px solid rgba(180, 83, 9, 0.3)' : '1px solid #fed7aa',
-          label: 'Bronze (3rd)'
-        }
-      default:
-        return {
-          bg: dark ? '#162640' : '#f8fafc',
-          text: dark ? '#7a98bb' : '#64748b',
-          border: `1px solid ${dark ? '#1a3050' : '#e2e8f0'}`,
-          label: `${rankNum}th Place`
-        }
-    }
-  }
-
   const cardStyle = {
     background: tokens.card,
     border: `1px solid ${tokens.border}`,
@@ -266,7 +249,41 @@ export default function ResultsPage({ tokens }) {
     { title: '1st Rank Holders', value: rank1Count, Icon: Award, background: '#FB2C36' }
   ]
 
-  const tableHeaders = ['Participant / Team', 'Lead Roll No', 'Department', 'Year', 'Event', 'Rank', 'Award Detail', 'Date', 'Actions']
+  const tableHeaders = ['Participant / Team', 'Department', 'Year', 'Event', 'Rank', 'Date', 'Actions']
+
+  const renderRankBadge = (rankNum) => {
+    const num = Number(rankNum)
+    if (num === 1) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 shadow-xs">
+          <Trophy size={13} className="text-amber-500 fill-amber-500" />
+          1st Rank
+        </span>
+      )
+    }
+    if (num === 2) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-extrabold bg-slate-400/15 text-slate-600 dark:text-slate-300 border border-slate-400/30 shadow-xs">
+          <Award size={13} className="text-slate-400 fill-slate-400" />
+          2nd Rank
+        </span>
+      )
+    }
+    if (num === 3) {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11.5px] font-extrabold bg-orange-600/15 text-orange-600 dark:text-orange-400 border border-orange-600/30 shadow-xs">
+          <Award size={13} className="text-orange-500 fill-orange-500" />
+          3rd Rank
+        </span>
+      )
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20">
+        <Award size={12} />
+        Rank {num}
+      </span>
+    )
+  }
 
   return (
     <div className="animate-fadeIn" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
@@ -401,26 +418,23 @@ export default function ResultsPage({ tokens }) {
                 [1, 2, 3, 4].map(i => (
                   <tr key={i}>
                     <td className="p-4"><div className="w-36 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
-                    <td className="p-4"><div className="w-20 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-16 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-12 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-28 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-24 h-6 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
-                    <td className="p-4"><div className="w-32 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-20 h-4 rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                     <td className="p-4"><div className="w-20 h-6 ml-auto rounded bg-slate-200/50 dark:bg-slate-800 animate-pulse" /></td>
                   </tr>
                 ))
               ) : filteredResults.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="p-12 text-center">
+                  <td colSpan="7" className="p-12 text-center">
                     <FileText size={40} className="block mx-auto mb-3 text-slate-400" />
                     <span className="text-[13px] font-semibold text-slate-500">No results found for current filters</span>
                   </td>
                 </tr>
               ) : (
-                filteredResults.map((row) => {
-                  const badge = getRankBadgeStyle(row.rank)
+                paginatedResults.map((row) => {
                   return (
                     <tr
                       key={row.id}
@@ -441,9 +455,6 @@ export default function ResultsPage({ tokens }) {
                         </div>
                       </td>
 
-                      {/* Lead Roll No */}
-                      <td className="p-4 text-[13.5px] font-semibold text-slate-500 dark:text-slate-400">{row.rollNo || '-'}</td>
-
                       {/* Department */}
                       <td className="p-4 text-[13.5px] font-semibold text-slate-700 dark:text-slate-300">{row.department}</td>
 
@@ -453,24 +464,9 @@ export default function ResultsPage({ tokens }) {
                       {/* Event */}
                       <td className="p-4 text-[13.5px] font-bold" style={{ color: BRAND }}>{row.eventName}</td>
 
-                      {/* Rank */}
+                      {/* Rank with Icon */}
                       <td className="p-4">
-                        <span
-                          className="px-2.5 py-1 rounded-full text-[11px] font-bold inline-block border"
-                          style={{ background: badge.bg, color: badge.text, borderColor: badge.text + '25' }}
-                        >
-                          Rank {row.rank}
-                        </span>
-                      </td>
-
-                      {/* Award Detail */}
-                      <td className="p-4">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[13.5px] font-bold text-slate-700 dark:text-slate-200">{row.resultTitle}</span>
-                          {row.score && (
-                            <span className="text-[11.5px] font-medium text-emerald-600 dark:text-emerald-400">Score: {row.score}</span>
-                          )}
-                        </div>
+                        {renderRankBadge(row.rank)}
                       </td>
 
                       {/* Date */}
@@ -501,6 +497,88 @@ export default function ResultsPage({ tokens }) {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Table Pagination Bar ── */}
+        <div 
+          className="flex items-center justify-between flex-wrap gap-4 px-6 py-4"
+          style={{ borderTop: `1px solid ${dark ? '#1a3050' : '#e2e8f0'}` }}
+        >
+          {/* Showing status & Items per page */}
+          <div className="flex items-center gap-4">
+            <span className="text-[12.5px] font-medium" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+              Showing <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems > 0 ? startIndex + 1 : 0}</strong> to{' '}
+              <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{endIndex}</strong> of{' '}
+              <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems}</strong> entries
+            </span>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500">Per page:</span>
+              <select
+                value={itemsPerPage}
+                onChange={e => {
+                  setItemsPerPage(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-2.5 py-1 rounded-lg text-[12px] font-bold outline-none cursor-pointer border"
+                style={{
+                  background: dark ? '#0f1e30' : '#ffffff',
+                  borderColor: dark ? '#1a3050' : '#cbd5e1',
+                  color: dark ? '#e8f0fe' : '#334155'
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Pagination Page Controls */}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{
+                borderColor: dark ? '#1a3050' : '#e2e8f0',
+                color: dark ? '#e8f0fe' : '#475569'
+              }}
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+              const active = page === currentPage
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className="w-8 h-8 rounded-lg text-[12.5px] font-extrabold cursor-pointer transition-all border-none"
+                  style={{
+                    background: active ? BRAND : (dark ? '#0f1e30' : '#f1f5f9'),
+                    color: active ? '#ffffff' : (dark ? '#7a98bb' : '#475569'),
+                    boxShadow: active ? '0 3px 10px rgba(97,95,255,0.3)' : 'none'
+                  }}
+                >
+                  {page}
+                </button>
+              )
+            })}
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{
+                borderColor: dark ? '#1a3050' : '#e2e8f0',
+                color: dark ? '#e8f0fe' : '#475569'
+              }}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
 

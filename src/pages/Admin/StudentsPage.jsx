@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Search, Download, Plus, Eye, Pencil, Trash2, X, Loader2, GraduationCap, Users, UserCheck, UserX } from 'lucide-react'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import studentsService from '../../services/studentsService'
 import { useToast } from '../../context/ToastContext'
 
@@ -20,6 +20,7 @@ function Avatar({ name, color, size = 36 }) {
 
 export default function StudentsPage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
   const [students, setStudents] = useState([])
   const [stats, setStats] = useState({ total: 0, active: 0, suspended: 0 })

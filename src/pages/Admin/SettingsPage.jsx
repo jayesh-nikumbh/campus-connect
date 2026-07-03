@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { User, Shield, Palette, Key, ShieldAlert, Cpu, Check, Loader2, Camera } from 'lucide-react'
-import { BRAND } from '../../data/dashboardData'
 import settingsService from '../../services/settingsService'
 import { useToast } from '../../context/ToastContext'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function SettingsPage({ tokens }) {
-  const { dark } = tokens
-  const { toggleDark } = useTheme()
+  const { dark, setDark, accentColor, setAccentColor, fontSize, setFontSize, applyAppearance } = useTheme()
+  const BRAND = tokens?.brand || accentColor || '#615FFF'
   const showToast = useToast()
+  const fileInputRef = useRef(null)
 
   const [activeTab, setActiveTab] = useState(() => {
     return sessionStorage.getItem('settings_active_tab') || 'Profile'
@@ -33,13 +33,14 @@ export default function SettingsPage({ tokens }) {
     department: '',
     employeeId: '',
     phone: '',
-    avatarColor: '#7c3aed'
+    avatarColor: '#7c3aed',
+    avatarUrl: null
   })
 
   const [appearanceForm, setAppearanceForm] = useState({
-    themeMode: 'Light',
-    accentColor: '#615FFF',
-    fontSize: 'medium'
+    themeMode: dark ? 'Dark' : 'Light',
+    accentColor: accentColor || '#615FFF',
+    fontSize: fontSize || 'medium'
   })
 
   const [passwordForm, setPasswordForm] = useState({
@@ -73,9 +74,18 @@ export default function SettingsPage({ tokens }) {
     setLoading(true)
     const res = await settingsService.fetch()
     if (res.success) {
-      setProfileForm(res.settings.profile)
-      setAppearanceForm(res.settings.appearance)
-      setPermissions(res.settings.permissions)
+      if (res.settings.profile) {
+        setProfileForm(p => ({ ...p, ...res.settings.profile }))
+      }
+      const fetchedApp = res.settings.appearance || {}
+      setAppearanceForm({
+        themeMode: dark ? 'Dark' : 'Light',
+        accentColor: accentColor || fetchedApp.accentColor || '#615FFF',
+        fontSize: fontSize || fetchedApp.fontSize || 'medium'
+      })
+      if (res.settings.permissions) {
+        setPermissions(res.settings.permissions)
+      }
     } else {
       showToast(res.message || 'Failed to fetch settings.', 'error')
     }
@@ -85,6 +95,15 @@ export default function SettingsPage({ tokens }) {
   useEffect(() => {
     loadSettings()
   }, [])
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setProfileForm(p => ({ ...p, avatarUrl: url }))
+      showToast('Profile photo updated.', 'success')
+    }
+  }
 
   const handleSaveProfile = async () => {
     setSaving(true)
@@ -102,15 +121,10 @@ export default function SettingsPage({ tokens }) {
     const res = await settingsService.updateAppearance(appearanceForm)
     setSaving(false)
     if (res.success) {
-      showToast(res.message, 'success')
-      // Apply theme mode change globally if it toggles dark/light
-      const currentDark = dark
-      const targetDark = appearanceForm.themeMode === 'Dark'
-      if (currentDark !== targetDark) {
-        toggleDark()
-      }
+      applyAppearance(appearanceForm)
+      showToast(res.message || 'Appearance preferences updated successfully.', 'success')
     } else {
-      showToast(res.message, 'error')
+      showToast(res.message || 'Failed to save preferences.', 'error')
     }
   }
 
@@ -216,17 +230,33 @@ export default function SettingsPage({ tokens }) {
                   </div>
 
                   {/* Profile Picture Upload Section */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
                   <div className="flex items-center gap-4">
                     <div
                       className="w-14 h-14 rounded-full flex items-center justify-center font-extrabold text-white text-[18px] relative group overflow-hidden"
                       style={{ background: profileForm.avatarColor || BRAND }}
                     >
-                      {profileForm.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                      {profileForm.avatarUrl ? (
+                        <img src={profileForm.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        profileForm.name ? profileForm.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'CC'
+                      )}
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                      >
                         <Camera size={14} color="#fff" />
                       </div>
                     </div>
                     <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
                       className="px-3.5 py-2 rounded-xl text-[12.5px] font-bold border cursor-pointer bg-transparent transition-all"
                       style={{ borderColor: tokens.border, color: tokens.txtPri }}
                       onMouseEnter={e => e.currentTarget.style.background = tokens.hoverBg}
@@ -332,12 +362,17 @@ export default function SettingsPage({ tokens }) {
                           return (
                             <button
                               key={mode}
-                              onClick={() => setAppearanceForm(p => ({ ...p, themeMode: mode }))}
+                              type="button"
+                              onClick={() => {
+                                setAppearanceForm(p => ({ ...p, themeMode: mode }))
+                                setDark(mode === 'Dark')
+                              }}
                               className="flex-1 py-2.5 rounded-xl text-[13px] font-bold border cursor-pointer capitalize transition-all"
                               style={{
-                                background: active ? `${BRAND}12` : 'transparent',
+                                background: active ? `${BRAND}18` : 'transparent',
                                 borderColor: active ? BRAND : tokens.border,
-                                color: active ? BRAND : tokens.txtSec
+                                color: active ? BRAND : tokens.txtSec,
+                                boxShadow: active ? `0 0 0 1px ${BRAND}` : 'none'
                               }}
                             >
                               {mode} Mode
@@ -356,15 +391,19 @@ export default function SettingsPage({ tokens }) {
                           return (
                             <button
                               key={c}
-                              onClick={() => setAppearanceForm(p => ({ ...p, accentColor: c }))}
-                              className="w-7 h-7 rounded-full border-2 cursor-pointer transition-transform hover:scale-110 flex items-center justify-center"
+                              type="button"
+                              onClick={() => {
+                                setAppearanceForm(p => ({ ...p, accentColor: c }))
+                                setAccentColor(c)
+                              }}
+                              className="w-8 h-8 rounded-full border-2 cursor-pointer transition-all hover:scale-110 flex items-center justify-center relative"
                               style={{
                                 background: c,
-                                borderColor: active ? '#fff' : 'transparent',
-                                boxShadow: active ? `0 0 0 2px ${c}` : 'none'
+                                borderColor: active ? '#ffffff' : 'transparent',
+                                boxShadow: active ? `0 0 0 3px ${c}` : '0 2px 5px rgba(0,0,0,0.1)'
                               }}
                             >
-                              {active && <Check size={12} color="#fff" />}
+                              {active && <Check size={14} color="#fff" strokeWidth={3} />}
                             </button>
                           )
                         })}
@@ -375,7 +414,7 @@ export default function SettingsPage({ tokens }) {
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <label className="text-[11.5px] font-bold" style={{ color: tokens.txtSec }}>Font Size</label>
-                        <span className="text-[11px] font-bold uppercase" style={{ color: BRAND }}>{appearanceForm.fontSize}</span>
+                        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: BRAND }}>{appearanceForm.fontSize}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] font-bold" style={{ color: tokens.txtMuted }}>Sm</span>
@@ -388,8 +427,10 @@ export default function SettingsPage({ tokens }) {
                             const val = parseInt(e.target.value)
                             const label = val === 0 ? 'small' : val === 1 ? 'medium' : 'large'
                             setAppearanceForm(p => ({ ...p, fontSize: label }))
+                            setFontSize(label)
                           }}
-                          className="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand"
+                          className="flex-1 h-1.5 rounded-lg appearance-none cursor-pointer"
+                          style={{ accentColor: BRAND }}
                         />
                         <span className="text-[10px] font-bold" style={{ color: tokens.txtMuted }}>Lg</span>
                       </div>
@@ -397,10 +438,11 @@ export default function SettingsPage({ tokens }) {
 
                     <div className="pt-2">
                       <button
+                        type="button"
                         onClick={handleSaveAppearance}
                         disabled={saving}
                         className="px-5 py-3 rounded-xl text-[13px] font-bold text-white border-none cursor-pointer flex items-center gap-2 hover:-translate-y-px transition-all"
-                        style={{ background: BRAND, boxShadow: '0 4px 14px rgba(97,95,255,0.4)' }}
+                        style={{ background: BRAND, boxShadow: `0 4px 14px ${BRAND}60` }}
                       >
                         {saving && <Loader2 size={13} className="animate-spin" />}
                         Save Preferences

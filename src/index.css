@@ -1,9 +1,13 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --brand-color: #615FFF;
+}
+
 @theme {
-  --color-brand: #615FFF;
-  --color-brand-hover: #4f4de0;
+  --color-brand: var(--brand-color);
+  --color-brand-hover: var(--brand-color);
 }
 
 @layer base {
@@ -11,3 +15,8 @@
     box-sizing: border-box;
   }
 }
+
+.bg-brand { background-color: var(--brand-color) !important; }
+.text-brand { color: var(--brand-color) !important; }
+.border-brand { border-color: var(--brand-color) !important; }
+.accent-brand { accent-color: var(--brand-color) !important; }

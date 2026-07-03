@@ -3,12 +3,13 @@ import {
   Award, Search, Download, Eye, Send, RotateCcw, CheckCircle2,
   Clock, ShieldCheck, X, Loader2, RefreshCw, Zap, GraduationCap, Copy, Palette, Save, Check
 } from 'lucide-react'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import certificatesService from '../../services/certificatesService'
 import { useToast } from '../../context/ToastContext'
 
 export default function CertificatesPage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
 
   const [certs, setCerts] = useState([])

@@ -1,8 +1,10 @@
 import React from 'react'
 import { Bell, X, CheckCheck, ExternalLink } from 'lucide-react'
-import { BRAND } from '../../../data/dashboardData'
+import { useTheme } from '../../../context/ThemeContext'
 
 export default function NotificationPanel({ open, onClose, notifications, onMarkRead, onDelete, onNavigate, tokens }) {
+  const { accentColor } = useTheme()
+  const BRAND = tokens?.brand || accentColor || '#615FFF'
   const { dark } = tokens
   const unreadCount = notifications.filter(n => n.unread).length
 

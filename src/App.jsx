@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import LoginPage from './pages/LoginPage'
 import AdminDashboard from './pages/Admin/AdminDashboard'
-// import LandingPage from './pages/LandingPage'   ← uncomment when needed
+import StudentDashboard from './pages/Student/StudentDashboard'
 
 /**
  * Router — simple role-based conditional render.
@@ -17,8 +17,8 @@ function AppRouter() {
 
   // Role-based dashboard routing
   if (user?.role === 'admin')     return <AdminDashboard />
+  if (user?.role === 'student')   return <StudentDashboard />
   // if (user?.role === 'organizer') return <OrganizerDashboard />
-  // if (user?.role === 'student')   return <StudentDashboard />
 
   // Fallback
   return <LoginPage />

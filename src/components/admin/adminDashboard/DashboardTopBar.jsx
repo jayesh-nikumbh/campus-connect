@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, Moon, Sun, Bell, MessageSquare, ChevronRight, ChevronDown, User, Settings, Key, LogOut, GraduationCap } from 'lucide-react'
-import { BRAND } from '../../../data/dashboardData'
+import { useTheme } from '../../../context/ThemeContext'
 
 export default function DashboardTopBar({
   activeNav,
@@ -16,6 +16,8 @@ export default function DashboardTopBar({
   setSidebarOpen,
   isMobile
 }) {
+  const { accentColor } = useTheme()
+  const BRAND = tokens?.brand || accentColor || '#615FFF'
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [logoHover, setLogoHover] = useState(false)
   const dropdownRef = useRef(null)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Search, Download, Plus, Eye, Pencil, Trash2, X, Loader2, Mail, Calendar, Shield, MapPin, Phone } from 'lucide-react'
-import { BRAND } from '../../data/dashboardData'
+import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import organizersService from '../../services/organizersService'
 import { useToast } from '../../context/ToastContext'
 
@@ -16,6 +16,7 @@ function Avatar({ name, color, size = 44 }) {
 
 export default function OrganizersPage({ tokens }) {
   const { dark } = tokens
+  const BRAND = tokens?.brand || DEFAULT_BRAND
   const showToast = useToast()
   const [organizers, setOrganizers] = useState([])
   const [loading, setLoading] = useState(true)
