@@ -21,6 +21,7 @@ import StudentsPage from '../Admin/StudentsPage'
 import OrganizersPage from '../Admin/OrganizersPage'
 import SettingsPage from '../Admin/SettingsPage'
 import NotificationPanel from '../../components/admin/adminDashboard/NotificationPanel'
+import PageTransition from '../../components/common/PageTransition'
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth()
@@ -140,7 +141,7 @@ export default function AdminDashboard() {
   const isNotificationsPage = activeNav === 'Notifications'
 
   return (
-    <div className="min-h-screen flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-x-hidden">
+    <div className="h-screen w-screen flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-hidden">
 
       {/* Mobile Sidebar Overlay Backdrop */}
       {isMobile && sidebarOpen && (
@@ -165,7 +166,7 @@ export default function AdminDashboard() {
       />
 
       <main
-        className="flex-1 flex flex-col min-h-screen transition-[margin-left] duration-300 w-full"
+        className="flex-1 flex flex-col h-screen overflow-hidden transition-[margin-left] duration-300 w-full"
         style={{ marginLeft: isMobile ? 0 : (collapsed ? 70 : 240) }}
       >
 
@@ -197,85 +198,86 @@ export default function AdminDashboard() {
         />
 
         {/* ── PAGE BODY ── */}
-        <div className={`flex-1 ${(isNotificationsPage || activeNav === 'Events' || activeNav === 'Analytics' || activeNav === 'Certificates' || activeNav === 'Students' || activeNav === 'Organizers' || activeNav === 'Settings') ? '' : 'p-6'}`}>
+        <div className="flex-1 overflow-y-auto relative">
+          <PageTransition pageKey={activeNav}>
+            {activeNav === 'Events' ? (
+              /* ─── Events Page ─── */
+              <EventsPage tokens={tokens} />
+            ) : activeNav === 'Results' ? (
+              /* ─── Results Page ─── */
+              <ResultsPage tokens={tokens} />
+            ) : activeNav === 'Attendance' ? (
+              /* ─── Attendance Page ─── */
+              <AttendancePage tokens={tokens} />
+            ) : activeNav === 'Analytics' ? (
+              /* ─── Analytics Page ─── */
+              <AnalyticsPage tokens={tokens} />
+            ) : activeNav === 'Certificates' ? (
+              /* ─── Certificates Page ─── */
+              <CertificatesPage tokens={tokens} />
+            ) : activeNav === 'Students' ? (
+              /* ─── Students Page ─── */
+              <StudentsPage tokens={tokens} />
+            ) : activeNav === 'Organizers' ? (
+              /* ─── Organizers Page ─── */
+              <OrganizersPage tokens={tokens} />
+            ) : activeNav === 'Settings' ? (
+              /* ─── Settings Page ─── */
+              <SettingsPage tokens={tokens} />
+            ) : isNotificationsPage ? (
+              /* ─── Notifications Page ─── */
+              <NotificationsPage
+                tokens={tokens}
+                notifications={notifications}
+                stats={notifStats}
+                loading={notifLoading}
+                onMarkRead={handleMarkRead}
+                onDelete={handleDelete}
+              />
+            ) : (
+              /* ─── Default Dashboard ─── */
+              <div className="p-6">
+                {/* Page title + action buttons */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h1 className="text-[28px] font-extrabold text-slate-900 dark:text-slate-100 m-0 tracking-tight">Admin Dashboard</h1>
+                    <p className="text-[13px] text-slate-500 dark:text-[#7a98bb] mt-1">{today}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setActiveNav('Events')}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-bold text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-px"
+                      style={{ background: BRAND, boxShadow: '0 4px 12px rgba(97,95,255,0.25)' }}
+                    >
+                      <Plus size={15} /> Create Event
+                    </button>
+                    <button
+                      onClick={() => setActiveNav('Attendance')}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
+                    >
+                      <QrCode size={15} className="text-slate-400 dark:text-slate-500" /> Generate QR
+                    </button>
+                    <button
+                      onClick={() => setActiveNav('Notifications')}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
+                    >
+                      <Megaphone size={15} className="text-slate-400 dark:text-slate-500" /> Notify
+                    </button>
+                    <button
+                      onClick={() => setActiveNav('Analytics')}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
+                    >
+                      <Download size={15} className="text-slate-400 dark:text-slate-500" /> Report
+                    </button>
+                  </div>
+                </div>
 
-          {activeNav === 'Events' ? (
-            /* ─── Events Page ─── */
-            <EventsPage tokens={tokens} />
-          ) : activeNav === 'Results' ? (
-            /* ─── Results Page ─── */
-            <ResultsPage tokens={tokens} />
-          ) : activeNav === 'Attendance' ? (
-            /* ─── Attendance Page ─── */
-            <AttendancePage tokens={tokens} />
-          ) : activeNav === 'Analytics' ? (
-            /* ─── Analytics Page ─── */
-            <AnalyticsPage tokens={tokens} />
-          ) : activeNav === 'Certificates' ? (
-            /* ─── Certificates Page ─── */
-            <CertificatesPage tokens={tokens} />
-          ) : activeNav === 'Students' ? (
-            /* ─── Students Page ─── */
-            <StudentsPage tokens={tokens} />
-          ) : activeNav === 'Organizers' ? (
-            /* ─── Organizers Page ─── */
-            <OrganizersPage tokens={tokens} />
-          ) : activeNav === 'Settings' ? (
-            /* ─── Settings Page ─── */
-            <SettingsPage tokens={tokens} />
-          ) : isNotificationsPage ? (
-            /* ─── Notifications Page ─── */
-            <NotificationsPage
-              tokens={tokens}
-              notifications={notifications}
-              stats={notifStats}
-              loading={notifLoading}
-              onMarkRead={handleMarkRead}
-              onDelete={handleDelete}
-            />
-          ) : (
-            /* ─── Default Dashboard ─── */
-            <>
-              {/* Page title + action buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                  <h1 className="text-[28px] font-extrabold text-slate-900 dark:text-slate-100 m-0 tracking-tight">Admin Dashboard</h1>
-                  <p className="text-[13px] text-slate-500 dark:text-slate-400 mt-1">{today}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setActiveNav('Events')}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-bold text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-px"
-                    style={{ background: BRAND, boxShadow: '0 4px 12px rgba(97,95,255,0.25)' }}
-                  >
-                    <Plus size={15} /> Create Event
-                  </button>
-                  <button
-                    onClick={() => setActiveNav('Attendance')}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
-                  >
-                    <QrCode size={15} className="text-slate-400 dark:text-slate-500" /> Generate QR
-                  </button>
-                  <button
-                    onClick={() => setActiveNav('Notifications')}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
-                  >
-                    <Megaphone size={15} className="text-slate-400 dark:text-slate-500" /> Notify
-                  </button>
-                  <button
-                    onClick={() => setActiveNav('Analytics')}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] text-[13px] font-semibold bg-white dark:bg-[#1a2236] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#1e2d45] cursor-pointer transition-all duration-150 hover:bg-slate-50 dark:hover:bg-[#1e2d45]"
-                  >
-                    <Download size={15} className="text-slate-400 dark:text-slate-500" /> Report
-                  </button>
-                </div>
+                <StatsCards tokens={tokens} stats={dashboardStats} loading={statsLoading} />
+                <ChartsRow dark={dark} tokens={tokens} />
+                <BottomRow dark={dark} tokens={tokens} />
               </div>
-
-              <StatsCards tokens={tokens} stats={dashboardStats} loading={statsLoading} />
-              <ChartsRow dark={dark} tokens={tokens} />
-              <BottomRow dark={dark} tokens={tokens} />
-            </>
-          )}
+            )}
+          </PageTransition>
         </div>
       </main>
 

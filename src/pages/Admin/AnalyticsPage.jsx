@@ -138,7 +138,7 @@ export default function AnalyticsPage({ tokens }) {
   }
 
   return (
-    <div className="space-y-6 m-4">
+    <div className="p-6 space-y-6">
       
       {/* ── HEADER ROW ── */}
       <div className="flex items-center justify-between flex-wrap gap-4">

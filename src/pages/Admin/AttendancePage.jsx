@@ -4,7 +4,8 @@ import {
   Users, UserX, Percent, Clock,
   Download, Search, Loader2, FileText,
   CheckCircle, XCircle, RefreshCw, Wifi,
-  Share2, Printer, Camera, Play, ZapOff
+  Share2, Printer, Camera, Play, ZapOff,
+  ChevronLeft, ChevronRight, X
 } from 'lucide-react'
 import attendanceService from '../../services/attendanceService'
 import { ATTENDANCE_EVENTS, ATTENDANCE_SESSIONS } from '../../data/attendanceData'
@@ -182,6 +183,10 @@ export default function AttendancePage({ tokens }) {
     { label: 'Late Entries',  value: totalLate,    Icon: Clock,   bg: '#FE9A00' },
   ]
 
+  /* pagination state */
+  const [currentPage, setCurrentPage]   = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+
   /* filter */
   const filtered = records.filter(r => {
     const sm = filterStatus === 'All' || r.status === filterStatus
@@ -189,6 +194,17 @@ export default function AttendancePage({ tokens }) {
     const tm = !q || r.studentName.toLowerCase().includes(q) || r.rollNo.toLowerCase().includes(q)
     return sm && tm
   })
+
+  // Reset page to 1 when filters or search change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, filterStatus, selectedEvent])
+
+  const totalItems = filtered.length
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems)
+  const paginatedRecords = filtered.slice(startIndex, startIndex + itemsPerPage)
 
   /* mark present */
   const handleMarkPresent = async (id) => {
@@ -257,7 +273,7 @@ export default function AttendancePage({ tokens }) {
   const selectedEvtName = ATTENDANCE_EVENTS.find(e => e.id === selectedEvent)?.name || ''
 
   return (
-    <div className="animate-fadeIn" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
+    <div className="animate-fadeIn p-6" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
 
       {/* header */}
       <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
@@ -692,6 +708,58 @@ export default function AttendancePage({ tokens }) {
 
           {/* ── ATTENDANCE TABLE ── */}
           <div className="rounded-2xl overflow-hidden border" style={card}>
+
+            {/* ── Search & Filter Header Bar ── */}
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 border-b" style={{ borderColor: dark ? '#1a3050' : '#e2e8f0' }}>
+              {/* Search Bar */}
+              <div className="relative w-full sm:w-[280px]">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={15} style={{ color: dark ? '#4a6a8a' : '#94a3b8' }} />
+                <input
+                  type="text"
+                  placeholder="Search student or roll no..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-9 py-2 rounded-xl text-[13px] outline-none transition-all duration-200"
+                  style={inp}
+                />
+                {search && (
+                  <button
+                    onClick={() => setSearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer border-none bg-transparent p-0 flex items-center justify-center"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* Status Filter Buttons */}
+              <div
+                className="flex items-center rounded-xl p-1 border h-[38px] box-border"
+                style={{
+                  borderColor: dark ? '#1a3050' : '#e2e8f0',
+                  background: dark ? '#060e1c' : '#ffffff',
+                }}
+              >
+                {['All', 'Present', 'Absent', 'Late'].map(tab => {
+                  const active = filterStatus === tab
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setFilterStatus(tab)}
+                      className="px-3.5 h-[28px] rounded-lg text-[12px] border-none cursor-pointer flex items-center justify-center transition-all duration-200 font-bold"
+                      style={{
+                        background: active ? BRAND : 'transparent',
+                        color: active ? '#ffffff' : (dark ? '#7a98bb' : '#5c6f84'),
+                        boxShadow: active ? '0 2px 8px rgba(97,95,255,0.3)' : 'none',
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[650px]">
                 <thead>
@@ -715,19 +783,19 @@ export default function AttendancePage({ tokens }) {
                         ))}
                       </tr>
                     ))
-                  ) : records.length === 0 ? (
+                  ) : filtered.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-12 text-center">
                         <FileText size={36} className="block mx-auto mb-2 text-slate-400" />
-                        <span className="text-[13px] font-semibold text-slate-400">No records found</span>
+                        <span className="text-[13px] font-semibold text-slate-400">No attendance records found matching filters</span>
                       </td>
                     </tr>
-                  ) : records.slice(0, 20).map((row, idx) => {
+                  ) : paginatedRecords.map((row, idx) => {
                     const badge = badgeStyle(row.status)
                     const isUpd = updatingId === row.id
                     return (
                       <tr key={row.id}
-                        className="transition-colors hover:bg-slate-50/30"
+                        className="transition-colors hover:bg-slate-50/30 dark:hover:bg-slate-800/20"
                         style={{ borderTop: idx === 0 ? 'none' : `1px solid ${dark ? '#1a3050' : '#f1f5f9'}` }}
                       >
                         <td className="px-6 py-4 text-[13.5px] font-bold">{row.studentName}</td>
@@ -752,11 +820,90 @@ export default function AttendancePage({ tokens }) {
                 </tbody>
               </table>
             </div>
-            {!loading && records.length > 0 && (
-              <div className="px-6 py-3 text-[12px] font-semibold border-t flex items-center gap-2"
-                style={{ borderColor: dark ? '#1a3050' : '#f1f5f9', color: dark ? '#7a98bb' : '#94a3b8' }}>
-                <Wifi size={11} style={{ color: BRAND }} />
-                Live · {records.length} records for <span style={{ color: BRAND }}>&nbsp;{selectedEvtName}</span>
+
+            {/* ── Table Footer with Pagination Controls ── */}
+            {!loading && (
+              <div 
+                className="flex items-center justify-between flex-wrap gap-4 px-6 py-3.5 border-t"
+                style={{ borderColor: dark ? '#1a3050' : '#e2e8f0' }}
+              >
+                {/* Showing entries & Per page count */}
+                <div className="flex items-center gap-4 flex-wrap">
+                  <span className="text-[12.5px] font-medium" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
+                    Showing <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems > 0 ? startIndex + 1 : 0}</strong> to{' '}
+                    <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{endIndex}</strong> of{' '}
+                    <strong style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>{totalItems}</strong> entries
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500">Per page:</span>
+                    <select
+                      value={itemsPerPage}
+                      onChange={e => {
+                        setItemsPerPage(Number(e.target.value))
+                        setCurrentPage(1)
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[12px] font-bold outline-none cursor-pointer border"
+                      style={{
+                        background: dark ? '#060e1c' : '#ffffff',
+                        borderColor: dark ? '#1a3050' : '#cbd5e1',
+                        color: dark ? '#e8f0fe' : '#334155'
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={{
+                        borderColor: dark ? '#1a3050' : '#e2e8f0',
+                        color: dark ? '#e8f0fe' : '#475569'
+                      }}
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      const active = page === currentPage
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className="w-7.5 h-7.5 rounded-lg text-[12.5px] font-extrabold cursor-pointer transition-all border-none"
+                          style={{
+                            background: active ? BRAND : (dark ? '#0f1e30' : '#f1f5f9'),
+                            color: active ? '#ffffff' : (dark ? '#7a98bb' : '#475569'),
+                            boxShadow: active ? '0 2px 8px rgba(97,95,255,0.3)' : 'none'
+                          }}
+                        >
+                          {page}
+                        </button>
+                      )
+                    })}
+
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      className="p-1.5 rounded-lg border bg-transparent cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={{
+                        borderColor: dark ? '#1a3050' : '#e2e8f0',
+                        color: dark ? '#e8f0fe' : '#475569'
+                      }}
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

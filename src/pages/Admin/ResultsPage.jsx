@@ -286,7 +286,7 @@ export default function ResultsPage({ tokens }) {
   }
 
   return (
-    <div className="animate-fadeIn" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
+    <div className="animate-fadeIn p-6" style={{ color: dark ? '#e8f0fe' : '#0f172a' }}>
 
       {/* ── BREADCRUMB & HEADER ── */}
       <div className="flex items-center justify-between flex-wrap gap-4 mb-6">

@@ -15,6 +15,7 @@ import StudentRegisteredEventsCard from '../../components/student/StudentRegiste
 import AttendancePage from './AttendancePage'
 import EventsPage from './EventsPage'
 import CertificatesPage from './CertificatesPage'
+import PageTransition from '../../components/common/PageTransition'
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth()
@@ -89,7 +90,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-x-hidden">
+    <div className="h-screen w-screen flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-hidden">
 
       {/* Mobile Sidebar Overlay Backdrop */}
       {isMobile && sidebarOpen && (
@@ -115,7 +116,7 @@ export default function StudentDashboard() {
 
       {/* Main Content Workspace */}
       <main
-        className="flex-1 flex flex-col min-h-screen transition-[margin-left] duration-300 w-full"
+        className="flex-1 flex flex-col h-screen overflow-hidden transition-[margin-left] duration-300 w-full"
         style={{ marginLeft: isMobile ? 0 : (collapsed ? 70 : 240) }}
       >
         <StudentTopBar
@@ -130,44 +131,46 @@ export default function StudentDashboard() {
         />
 
         {/* Dynamic Page Views from src/pages/Student/ */}
-        <div className="flex-1">
-          {activeNav === 'Attendance' ? (
-            <AttendancePage tokens={tokens} user={user} />
-          ) : activeNav === 'Events' ? (
-            <EventsPage tokens={tokens} user={user} />
-          ) : activeNav === 'Certificates' ? (
-            <CertificatesPage tokens={tokens} user={user} />
-          ) : (
-            /* ── Default Main Student Dashboard Overview ── */
-            <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl mx-auto w-full">
-              {/* Welcome Banner */}
-              <StudentWelcomeBanner user={user} tokens={tokens} />
+        <div className="flex-1 overflow-y-auto relative">
+          <PageTransition pageKey={activeNav}>
+            {activeNav === 'Attendance' ? (
+              <AttendancePage tokens={tokens} user={user} />
+            ) : activeNav === 'Events' ? (
+              <EventsPage tokens={tokens} user={user} />
+            ) : activeNav === 'Certificates' ? (
+              <CertificatesPage tokens={tokens} user={user} />
+            ) : (
+              /* ── Default Main Student Dashboard Overview ── */
+              <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl mx-auto w-full">
+                {/* Welcome Banner */}
+                <StudentWelcomeBanner user={user} tokens={tokens} />
 
-              {/* 3 Metric Cards */}
-              <StudentStatsCards
-                tokens={tokens}
-                onNavigate={setActiveNav}
-                statsData={dashboardData?.stats}
-              />
+                {/* 3 Metric Cards */}
+                <StudentStatsCards
+                  tokens={tokens}
+                  onNavigate={setActiveNav}
+                  statsData={dashboardData?.stats}
+                />
 
-              {/* Main Grid: Performance Donut & Bars (Left) + Registered Events (Right) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <div className="lg:col-span-7">
-                  <StudentPerformanceCard
-                    tokens={tokens}
-                    performanceData={dashboardData?.performance}
-                  />
-                </div>
-                <div className="lg:col-span-5">
-                  <StudentRegisteredEventsCard
-                    tokens={tokens}
-                    onNavigate={setActiveNav}
-                    eventsList={dashboardData?.registeredEvents}
-                  />
+                {/* Main Grid: Performance Donut & Bars (Left) + Registered Events (Right) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  <div className="lg:col-span-7">
+                    <StudentPerformanceCard
+                      tokens={tokens}
+                      performanceData={dashboardData?.performance}
+                    />
+                  </div>
+                  <div className="lg:col-span-5">
+                    <StudentRegisteredEventsCard
+                      tokens={tokens}
+                      onNavigate={setActiveNav}
+                      eventsList={dashboardData?.registeredEvents}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </PageTransition>
         </div>
       </main>
 

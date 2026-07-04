@@ -18,6 +18,8 @@
     {
       "id": "ATT001",
       "event": "National Hackathon 2024",
+      "eventType": "Team",
+      "teamName": "Code Ninjas",
       "scanTime": "09:15 AM",
       "status": "Present",
       "venue": "Tech Hub, Block A",
@@ -27,6 +29,8 @@
     {
       "id": "ATT002",
       "event": "AI/ML Workshop",
+      "eventType": "Solo",
+      "teamName": null,
       "scanTime": "10:30 AM",
       "status": "Present",
       "venue": "Seminar Hall 2",
@@ -36,6 +40,8 @@
     {
       "id": "ATT003",
       "event": "Cultural Fest 2024",
+      "eventType": "Team",
+      "teamName": "Rhythm Warriors",
       "scanTime": "-",
       "status": "Absent",
       "venue": "Main Auditorium",
@@ -45,6 +51,8 @@
     {
       "id": "ATT004",
       "event": "Design Sprint Challenge",
+      "eventType": "Team",
+      "teamName": "Pixel Crafters",
       "scanTime": "02:15 PM",
       "status": "Pending",
       "venue": "Design Studio 3",
@@ -54,6 +62,8 @@
     {
       "id": "ATT005",
       "event": "Annual Sports Meet",
+      "eventType": "Solo",
+      "teamName": null,
       "scanTime": "08:00 AM",
       "status": "Present",
       "venue": "Campus Sports Complex",
@@ -63,6 +73,8 @@
     {
       "id": "ATT006",
       "event": "Web Dev Summit",
+      "eventType": "Solo",
+      "teamName": null,
       "scanTime": "09:45 AM",
       "status": "Present",
       "venue": "Auditorium B",
@@ -72,6 +84,8 @@
     {
       "id": "ATT007",
       "event": "CyberSecurity Seminar",
+      "eventType": "Team",
+      "teamName": "Cyber Shield",
       "scanTime": "11:15 AM",
       "status": "Present",
       "venue": "IT Lab 4",
@@ -81,6 +95,8 @@
     {
       "id": "ATT008",
       "event": "Alumni Meet 2024",
+      "eventType": "Solo",
+      "teamName": null,
       "scanTime": "04:00 PM",
       "status": "Present",
       "venue": "Grand Hall",

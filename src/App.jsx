@@ -6,6 +6,8 @@ import LoginPage from './pages/LoginPage'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import StudentDashboard from './pages/Student/StudentDashboard'
 
+import PageTransition from './components/common/PageTransition'
+
 /**
  * Router — simple role-based conditional render.
  * Replace with react-router-dom when routes grow.
@@ -13,15 +15,21 @@ import StudentDashboard from './pages/Student/StudentDashboard'
 function AppRouter() {
   const { isLoggedIn, user } = useAuth()
 
-  if (!isLoggedIn) return <LoginPage />
+  const routeKey = !isLoggedIn ? 'login' : `${user?.role || 'user'}`
 
-  // Role-based dashboard routing
-  if (user?.role === 'admin')     return <AdminDashboard />
-  if (user?.role === 'student')   return <StudentDashboard />
-  // if (user?.role === 'organizer') return <OrganizerDashboard />
-
-  // Fallback
-  return <LoginPage />
+  return (
+    <PageTransition pageKey={routeKey}>
+      {!isLoggedIn ? (
+        <LoginPage />
+      ) : user?.role === 'admin' ? (
+        <AdminDashboard />
+      ) : user?.role === 'student' ? (
+        <StudentDashboard />
+      ) : (
+        <LoginPage />
+      )}
+    </PageTransition>
+  )
 }
 
 export default function App() {

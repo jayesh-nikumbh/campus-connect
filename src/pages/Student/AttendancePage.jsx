@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { QrCode, FileText, CheckCircle2, Activity, Clock, Search, TrendingUp, X } from 'lucide-react'
+import { QrCode, FileText, CheckCircle2, Activity, Clock, Search, TrendingUp, X, Users, User } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import { useToast } from '../../context/ToastContext'
 import studentService from '../../services/studentService'
+import QRScannerModal from '../../components/student/QRScannerModal'
 
 export default function AttendancePage({ tokens, user }) {
   const { dark, accentColor } = useTheme()
@@ -13,6 +14,9 @@ export default function AttendancePage({ tokens, user }) {
   const [activeFilter, setActiveFilter] = useState('All')
   const [showScanModal, setShowScanModal] = useState(false)
   const [scanning, setScanning] = useState(false)
+
+  // Interactive Graph Hover State (default to Sep - index 2 matching reference image)
+  const [hoveredPointIndex, setHoveredPointIndex] = useState(2)
 
   const [attendanceData, setAttendanceData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -38,11 +42,17 @@ export default function AttendancePage({ tokens, user }) {
     const matchesSearch =
       record.event.toLowerCase().includes(search.toLowerCase()) ||
       record.id.toLowerCase().includes(search.toLowerCase()) ||
-      record.venue.toLowerCase().includes(search.toLowerCase())
+      record.venue.toLowerCase().includes(search.toLowerCase()) ||
+      (record.teamName && record.teamName.toLowerCase().includes(search.toLowerCase()))
 
-    const matchesFilter =
-      activeFilter === 'All' ||
-      record.status.toLowerCase() === activeFilter.toLowerCase()
+    let matchesFilter = true
+    if (activeFilter === 'Team') {
+      matchesFilter = record.eventType === 'Team'
+    } else if (activeFilter === 'Solo') {
+      matchesFilter = record.eventType === 'Solo'
+    } else if (activeFilter !== 'All') {
+      matchesFilter = record.status.toLowerCase() === activeFilter.toLowerCase()
+    }
 
     return matchesSearch && matchesFilter
   })
@@ -61,6 +71,18 @@ export default function AttendancePage({ tokens, user }) {
       showToast(res.message || 'QR Scan Failed.', 'error')
     }
   }
+
+  // ── GRAPH DATA & COORDINATES COMPUTATION ──
+  const chartPoints = [
+    { month: 'Jul', total: 4, attended: 4, xPercent: 6, xSvg: 50, ySvg: 90 },
+    { month: 'Aug', total: 6, attended: 6, xPercent: 24.4, xSvg: 186, ySvg: 55 },
+    { month: 'Sep', total: 3, attended: 2, xPercent: 42.8, xSvg: 322, ySvg: 110 },
+    { month: 'Oct', total: 5, attended: 5, xPercent: 61.2, xSvg: 458, ySvg: 72.5 },
+    { month: 'Nov', total: 4, attended: 4, xPercent: 79.6, xSvg: 594, ySvg: 90 },
+    { month: 'Dec', total: 2, attended: 2, xPercent: 98, xSvg: 730, ySvg: 125 },
+  ]
+
+  const activePoint = chartPoints[hoveredPointIndex !== null ? hoveredPointIndex : 2]
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-7xl mx-auto w-full font-[Manrope,sans-serif]">
@@ -176,9 +198,9 @@ export default function AttendancePage({ tokens, user }) {
 
       </div>
 
-      {/* ── 3. Attendance Analytics Line Chart Card ── */}
+      {/* ── 3. Interactive Attendance Analytics Chart Card ── */}
       <div
-        className="rounded-3xl p-6 border transition-colors duration-300 shadow-sm"
+        className="rounded-3xl p-6 border transition-colors duration-300 shadow-sm relative overflow-hidden"
         style={{
           background: dark ? '#0b1322' : '#ffffff',
           borderColor: dark ? '#182438' : '#e2e8f0',
@@ -194,17 +216,17 @@ export default function AttendancePage({ tokens, user }) {
           </span>
         </div>
 
-        {/* SVG Continuous Curve Wave Chart */}
-        <div className="w-full relative h-48 sm:h-56">
-          <svg className="w-full h-full overflow-visible" viewBox="0 0 750 180" preserveAspectRatio="none">
+        {/* SVG Interactive Wave Chart */}
+        <div className="w-full relative h-52 sm:h-60 pt-2 pb-6">
+          <svg className="w-full h-full overflow-visible" viewBox="0 0 770 180" preserveAspectRatio="none">
             <defs>
               <linearGradient id="analyticsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={BRAND} stopOpacity="0.25" />
+                <stop offset="0%" stopColor={BRAND} stopOpacity="0.22" />
                 <stop offset="100%" stopColor={BRAND} stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
-            {/* Y-Axis Grid Lines & Labels */}
+            {/* Y-Axis Grid Lines & Numbers */}
             {[
               { label: '8', y: 20 },
               { label: '6', y: 55 },
@@ -213,44 +235,128 @@ export default function AttendancePage({ tokens, user }) {
               { label: '0', y: 160 }
             ].map(tick => (
               <g key={tick.label}>
-                <text x="10" y={tick.y + 4} fill={dark ? '#4d6a8f' : '#94a3b8'} fontSize="11" fontWeight="600">
+                <text x="8" y={tick.y + 4} fill={dark ? '#4d6a8f' : '#94a3b8'} fontSize="11" fontWeight="600">
                   {tick.label}
                 </text>
                 <line
                   x1="35"
                   y1={tick.y}
-                  x2="740"
+                  x2="750"
                   y2={tick.y}
-                  stroke={dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)'}
+                  stroke={dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'}
                   strokeDasharray="4 4"
                 />
               </g>
             ))}
 
-            {/* Filled Area under Curve */}
+            {/* Smooth Filled Gradient Area */}
             <path
-              d="M 40 100 Q 110 50, 180 50 T 320 110 T 460 70 T 600 90 T 730 140 L 730 160 L 40 160 Z"
+              d="M 50 90 C 110 50, 130 55, 186 55 C 240 55, 270 107.5, 322 107.5 C 370 107.5, 410 72.5, 458 72.5 C 500 72.5, 540 90, 594 90 C 640 90, 680 125, 730 125 L 730 160 L 50 160 Z"
               fill="url(#analyticsAreaGrad)"
             />
 
-            {/* Glowing Smooth Wave Path */}
+            {/* Main Glowing Smooth Wave Stroke */}
             <path
-              d="M 40 100 Q 110 50, 180 50 T 320 110 T 460 70 T 600 90 T 730 140"
+              d="M 50 90 C 110 50, 130 55, 186 55 C 240 55, 270 107.5, 322 107.5 C 370 107.5, 410 72.5, 458 72.5 C 500 72.5, 540 90, 594 90 C 640 90, 680 125, 730 125"
               fill="none"
               stroke={BRAND}
-              strokeWidth="3.5"
+              strokeWidth="3"
               strokeLinecap="round"
             />
+
+            {/* Interactive Vertical Cursor Indicator Line */}
+            {activePoint && (
+              <line
+                x1={activePoint.xSvg}
+                y1={20}
+                x2={activePoint.xSvg}
+                y2={160}
+                stroke={dark ? '#94a3b8' : '#cbd5e1'}
+                strokeWidth="1.5"
+                strokeDasharray="3 3"
+              />
+            )}
+
+            {/* Interactive Clean Node Dot on Curve */}
+            {activePoint && (
+              <g>
+                <circle
+                  cx={activePoint.xSvg}
+                  cy={activePoint.ySvg}
+                  r="7"
+                  fill={BRAND}
+                  opacity="0.25"
+                />
+                <circle
+                  cx={activePoint.xSvg}
+                  cy={activePoint.ySvg}
+                  r="4.5"
+                  fill="#ffffff"
+                  stroke={BRAND}
+                  strokeWidth="3"
+                />
+              </g>
+            )}
+
+            {/* Transparent Interactive Hover Triggers */}
+            {chartPoints.map((pt, idx) => (
+              <rect
+                key={pt.month}
+                x={pt.xSvg - 40}
+                y={0}
+                width={80}
+                height={180}
+                fill="transparent"
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredPointIndex(idx)}
+              />
+            ))}
           </svg>
 
+          {/* ── Floating Tooltip Card (Matching Reference Image) ── */}
+          {activePoint && (
+            <div
+              className="absolute pointer-events-none z-20 rounded-2xl p-3 shadow-2xl transition-all duration-150 ease-out flex flex-col gap-1 text-xs"
+              style={{
+                left: `${activePoint.xPercent}%`,
+                top: `${activePoint.ySvg - 60}px`,
+                transform: 'translateX(-50%)',
+                background: dark ? '#0a111f' : '#0f172a',
+                border: '1px solid #1e293b',
+                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45)',
+                minWidth: '105px'
+              }}
+            >
+              {/* Tooltip Header / Month Name */}
+              <span className="text-[11px] font-bold text-slate-400">
+                {activePoint.month}
+              </span>
+
+              {/* Total Count */}
+              <div className="text-[11.5px] font-semibold text-slate-300">
+                Total : <span className="font-bold text-white">{activePoint.total}</span>
+              </div>
+
+              {/* Attended Count with Brand Highlight */}
+              <div className="text-[11.5px] font-extrabold" style={{ color: '#818cf8' }}>
+                Attended : <span>{activePoint.attended}</span>
+              </div>
+            </div>
+          )}
+
           {/* X-Axis Month Labels */}
-          <div className="flex justify-between pl-9 pr-2 mt-2 text-xs font-semibold text-slate-400 dark:text-[#4d6a8f]">
-            <span>Jul</span>
-            <span>Aug</span>
-            <span>Sep</span>
-            <span>Oct</span>
-            <span>Nov</span>
-            <span>Dec</span>
+          <div className="flex justify-between pl-8 pr-3 mt-2 text-xs font-semibold text-slate-400 dark:text-[#4d6a8f]">
+            {chartPoints.map((pt, idx) => (
+              <span
+                key={pt.month}
+                onClick={() => setHoveredPointIndex(idx)}
+                className={`cursor-pointer transition-colors ${
+                  hoveredPointIndex === idx ? 'text-indigo-500 font-extrabold' : 'hover:text-slate-200'
+                }`}
+              >
+                {pt.month}
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -284,7 +390,7 @@ export default function AttendancePage({ tokens, user }) {
 
           {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-            {['All', 'Present', 'Absent', 'Pending'].map((filter) => {
+            {['All', 'Present', 'Absent', 'Pending', 'Team', 'Solo'].map((filter) => {
               const active = activeFilter === filter
               return (
                 <button
@@ -314,7 +420,7 @@ export default function AttendancePage({ tokens, user }) {
             <thead>
               <tr className="border-b border-slate-100 dark:border-[#16263e] text-slate-400 dark:text-[#4d6a8f]">
                 <th className="py-3.5 px-4 font-extrabold">ID</th>
-                <th className="py-3.5 px-4 font-extrabold">EVENT NAME</th>
+                <th className="py-3.5 px-4 font-extrabold">EVENT NAME & TYPE</th>
                 <th className="py-3.5 px-4 font-extrabold">SCAN TIME</th>
                 <th className="py-3.5 px-4 font-extrabold">STATUS</th>
                 <th className="py-3.5 px-4 font-extrabold">VENUE</th>
@@ -340,9 +446,22 @@ export default function AttendancePage({ tokens, user }) {
                       {item.id}
                     </td>
 
-                    {/* EVENT NAME */}
-                    <td className="py-4 px-4 font-bold text-slate-900 dark:text-white">
-                      {item.event}
+                    {/* EVENT NAME & TYPE / TEAM NAME */}
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-bold text-slate-900 dark:text-white text-xs">
+                          {item.event}
+                        </span>
+                        {item.eventType === 'Team' ? (
+                          <span className="inline-flex items-center gap-1 w-max px-2.5 py-0.5 rounded-md text-[10.5px] font-extrabold bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border border-indigo-500/20">
+                            <Users size={11} /> Team: <span className="underline">{item.teamName}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 w-max px-2.5 py-0.5 rounded-md text-[10.5px] font-bold bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400">
+                            <User size={11} /> Solo
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* SCAN TIME */}
@@ -393,71 +512,15 @@ export default function AttendancePage({ tokens, user }) {
         </div>
       </div>
 
-      {/* ── 5. Scan QR Interactive Modal ── */}
-      {showScanModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setShowScanModal(false)} />
-
-          <div
-            className="relative z-10 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl overflow-hidden"
-            style={{
-              background: dark ? '#0c1626' : '#ffffff',
-              border: `1px solid ${dark ? '#1b2a42' : '#e2e8f0'}`,
-              animation: 'modalScaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#1b2a42] mb-5">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white m-0 flex items-center gap-2">
-                <QrCode size={18} style={{ color: BRAND }} /> Event QR Scanner
-              </h3>
-              <button
-                onClick={() => setShowScanModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#1a2d48] border-none bg-transparent cursor-pointer transition-colors"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* QR Scanner Display Box with Laser animation */}
-            <div className="relative w-48 h-48 mx-auto rounded-2xl bg-slate-900 p-4 border-2 border-indigo-500/40 flex items-center justify-center overflow-hidden shadow-inner mb-6">
-              <QrCode size={150} className="text-indigo-400 opacity-90" />
-              <div className="absolute inset-x-0 h-1 bg-indigo-400 shadow-[0_0_15px_#6366f1] animate-scanLaser" />
-            </div>
-
-            <p className="text-xs font-semibold text-slate-500 dark:text-[#7a98bb] mb-6">
-              Align the event entrance QR code within the frame to verify attendance.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowScanModal(false)}
-                className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-[#14233a] border border-slate-200 dark:border-[#213554] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#1a2d48] cursor-pointer transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSimulateScan}
-                disabled={scanning}
-                className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white border-none cursor-pointer shadow-lg hover:opacity-90 transition-opacity"
-                style={{ background: BRAND }}
-              >
-                {scanning ? 'Verifying...' : 'Simulate Scan'}
-              </button>
-            </div>
-          </div>
-
-          <style>{`
-            @keyframes scanLaser {
-              0%   { top: 10%; }
-              50%  { top: 85%; }
-              100% { top: 10%; }
-            }
-            .animate-scanLaser {
-              animation: scanLaser 2.2s ease-in-out infinite;
-            }
-          `}</style>
-        </div>
-      )}
+      {/* ── 5. Scan QR Interactive Modal (Matching Figma Workflow) ── */}
+      <QRScannerModal
+        isOpen={showScanModal}
+        onClose={() => setShowScanModal(false)}
+        user={user}
+        onAttendanceConfirmed={(updatedData) => {
+          setAttendanceData(updatedData)
+        }}
+      />
 
     </div>
   )

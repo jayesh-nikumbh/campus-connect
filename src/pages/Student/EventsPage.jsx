@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { CalendarDays, Search, MapPin, Clock, Ticket, CheckCircle2 } from 'lucide-react'
+import { CalendarDays, Search, MapPin, Clock, Ticket, CheckCircle2, Users, User } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import { useToast } from '../../context/ToastContext'
 import studentService from '../../services/studentService'
@@ -95,16 +95,37 @@ export default function EventsPage({ tokens }) {
             }}
           >
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500">
-                  {event.category}
-                </span>
+              {/* Card Header: Category + Participation Mode + Status */}
+              <div className="flex items-center justify-between mb-3 gap-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500">
+                    {event.category}
+                  </span>
+
+                  {/* Mode Badge: Solo / Team / Both */}
+                  {event.mode === 'Team' && (
+                    <span className="inline-flex items-center gap-1 text-[10.5px] font-extrabold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                      <Users size={11} /> Team
+                    </span>
+                  )}
+                  {event.mode === 'Solo' && (
+                    <span className="inline-flex items-center gap-1 text-[10.5px] font-extrabold px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                      <User size={11} /> Solo
+                    </span>
+                  )}
+                  {(event.mode === 'Both' || event.mode === 'Solo / Team') && (
+                    <span className="inline-flex items-center gap-1 text-[10.5px] font-extrabold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <Users size={11} /> Solo & Team
+                    </span>
+                  )}
+                </div>
+
                 {event.registered ? (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500 shrink-0">
                     <CheckCircle2 size={13} /> Registered
                   </span>
                 ) : (
-                  <span className="text-[11px] font-bold text-amber-500">
+                  <span className="text-[11px] font-bold text-amber-500 shrink-0">
                     Registration Open
                   </span>
                 )}
@@ -123,6 +144,9 @@ export default function EventsPage({ tokens }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin size={14} className="text-slate-400" /> {event.venue}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users size={14} className="text-slate-400" /> Type: <span className="font-bold text-slate-700 dark:text-slate-200">{event.mode === 'Both' ? 'Solo & Team Event' : `${event.mode || 'Solo'} Event`}</span>
                 </div>
               </div>
             </div>
