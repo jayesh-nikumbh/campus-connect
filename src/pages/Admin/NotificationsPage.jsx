@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Bell, Check, CheckCheck, Send, Trash2, X, Mail, MessageSquare, Smartphone, Megaphone, Clock, Calendar } from 'lucide-react'
 import { BRAND } from '../../data/dashboardData'
 import { NOTIFICATION_CATEGORIES, buildStatsDisplay } from '../../data/notificationsData'
@@ -270,9 +271,9 @@ export default function NotificationsPage({ tokens, notifications = [], stats = 
       </div>
 
       {/* ── Send Notification Modal ── */}
-      {sendOpen && (
+      {sendOpen && createPortal(
         <div
-          className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5"
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) { setSendOpen(false); resetForm() } }}
         >
           <div
@@ -441,7 +442,7 @@ export default function NotificationsPage({ tokens, notifications = [], stats = 
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }

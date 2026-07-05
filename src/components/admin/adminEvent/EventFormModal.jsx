@@ -1,4 +1,4 @@
-import React from 'react'
+import { createPortal } from 'react-dom'
 import { X, Image, Loader2 } from 'lucide-react'
 import { BRAND as DEFAULT_BRAND } from '../../../data/dashboardData'
 
@@ -26,9 +26,9 @@ export default function EventFormModal({
     background: dark ? '#060e1c' : '#f8fafc',
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
+      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5 animate-fadeIn"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
@@ -133,7 +133,7 @@ export default function EventFormModal({
             </div>
           </div>
 
-          {/* Grid: Event Type (Participation) & Admin Approval */}
+          {/* Grid: Participation Type & Assign Organizer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
@@ -162,29 +162,22 @@ export default function EventFormModal({
 
             <div>
               <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
-                Admin Approval Status
+                Assign Organizer
               </label>
-              <div className="relative">
-                <select
-                  value={formState.approvalStatus || 'Approved'}
-                  onChange={e => setFormState(p => ({ ...p, approvalStatus: e.target.value }))}
-                  className="w-full pl-4 pr-10 py-3 rounded-xl text-[13.5px] outline-none cursor-pointer border appearance-none transition-all duration-200 font-bold"
-                  style={{
-                    ...inputStyle,
-                    color: (formState.approvalStatus || 'Approved') === 'Approved' ? '#10b981' : '#ef4444'
-                  }}
-                  onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
-                  onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
-                >
-                  <option value="Approved" className="text-emerald-500 font-bold">Approved</option>
-                  <option value="Rejected" className="text-red-500 font-bold">Rejected</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: dark ? '#7a98bb' : '#64748b' }}>
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                    <path d="M1 1.5L5 4.5L9 1.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
+              <input
+                type="text"
+                placeholder="Dr. Priya Sharma"
+                value={formState.organizer}
+                onChange={e => setFormState(p => ({ ...p, organizer: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl text-[13.5px] outline-none transition-all duration-200 border"
+                style={{
+                  ...inputStyle,
+                  borderColor: formErrors.organizer ? '#ef4444' : dark ? '#1a3050' : '#e2e8f0'
+                }}
+                onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
+                onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+              />
+              {formErrors.organizer && <span className="text-[11px] text-red-500 mt-1.5 block">{formErrors.organizer}</span>}
             </div>
           </div>
 
@@ -271,30 +264,6 @@ export default function EventFormModal({
               />
               {formErrors.registrationDeadline && <span className="text-[11px] text-red-500 mt-1.5 block">{formErrors.registrationDeadline}</span>}
             </div>
-          </div>
-
-          {/* Grid: Assign Organizer & Blank */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="text-[13px] font-bold block mb-1.5" style={{ color: dark ? '#cbd5e1' : '#475569' }}>
-                Assign Organizer
-              </label>
-              <input
-                type="text"
-                placeholder="Dr. Priya Sharma"
-                value={formState.organizer}
-                onChange={e => setFormState(p => ({ ...p, organizer: e.target.value }))}
-                className="w-full px-4 py-3 rounded-xl text-[13.5px] outline-none transition-all duration-200 border"
-                style={{
-                  ...inputStyle,
-                  borderColor: formErrors.organizer ? '#ef4444' : dark ? '#1a3050' : '#e2e8f0'
-                }}
-                onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
-                onBlur={e => { e.target.style.borderColor = dark ? '#1a3050' : '#e2e8f0'; e.target.style.boxShadow = 'none' }}
-              />
-              {formErrors.organizer && <span className="text-[11px] text-red-500 mt-1.5 block">{formErrors.organizer}</span>}
-            </div>
-            <div />
           </div>
 
           {/* Event Description */}
@@ -456,6 +425,7 @@ export default function EventFormModal({
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

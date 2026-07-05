@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { AlertTriangle } from 'lucide-react'
 import { BRAND as DEFAULT_BRAND } from '../../../data/dashboardData'
 
@@ -14,9 +15,9 @@ export default function DeleteConfirmModal({
   const { dark } = tokens
   const BRAND = tokens?.brand || DEFAULT_BRAND
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
+      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5 animate-fadeIn"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
@@ -64,6 +65,7 @@ export default function DeleteConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

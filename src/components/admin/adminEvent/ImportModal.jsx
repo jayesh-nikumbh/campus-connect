@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { FileSpreadsheet, X, Loader2 } from 'lucide-react'
 import { BRAND as DEFAULT_BRAND } from '../../../data/dashboardData'
 
@@ -23,9 +24,9 @@ export default function ImportModal({
     background: dark ? '#060e1c' : '#f8fafc',
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-5 animate-fadeIn"
+      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5 animate-fadeIn"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
@@ -103,6 +104,7 @@ export default function ImportModal({
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
-  Search, Download, Check, X, Eye, FileText,
-  Loader2, Trophy, Users, User, Award, Plus, Edit3, Trash2, Calendar, ChevronLeft, ChevronRight
+  Search, Download, X, FileText,
+  Loader2, Trophy, Users, User, Award, Plus, Edit3, Trash2, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import resultsService from '../../services/resultsService'
 import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
@@ -583,11 +584,11 @@ export default function ResultsPage({ tokens }) {
       </div>
 
       {/* ── ADD/EDIT RESULT MODAL ── */}
-      {formOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {formOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/45 backdrop-blur-xs"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setFormOpen(false)}
           />
 
@@ -830,7 +831,7 @@ export default function ResultsPage({ tokens }) {
             </form>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* CSS Animation Keyframes */}
       <style>{`

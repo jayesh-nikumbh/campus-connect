@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Search, Download, Plus, Eye, Pencil, Trash2, X, Loader2, GraduationCap, Users, UserCheck, UserX } from 'lucide-react'
 import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import studentsService from '../../services/studentsService'
@@ -269,8 +270,8 @@ export default function StudentsPage({ tokens }) {
       </div>
 
       {/* Add/Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+      {modalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setModalOpen(false) }}>
           <div className="rounded-[24px] w-full max-w-[520px] overflow-hidden"
             style={{ background: dark ? '#0c1829' : '#fff', border: `1px solid ${tokens.border}`, boxShadow: '0 32px 80px rgba(0,0,0,0.45)', animation: 'slideUp 0.25s ease' }}>
@@ -319,11 +320,11 @@ export default function StudentsPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* View Modal */}
-      {viewStudent && (
-        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+      {viewStudent && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setViewStudent(null) }}>
           <div className="rounded-[24px] w-full max-w-[440px] overflow-hidden"
             style={{ background: dark ? '#0c1829' : '#fff', border: `1px solid ${tokens.border}`, boxShadow: '0 32px 80px rgba(0,0,0,0.45)', animation: 'slideUp 0.25s ease' }}>
@@ -362,11 +363,11 @@ export default function StudentsPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* Delete Confirm */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+      {deleteTarget && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setDeleteTarget(null) }}>
           <div className="rounded-[20px] w-full max-w-[380px] p-7 text-center"
             style={{ background: dark ? '#0c1829' : '#fff', border: `1px solid ${tokens.border}`, boxShadow: '0 32px 80px rgba(0,0,0,0.45)', animation: 'slideUp 0.25s ease' }}>
@@ -381,7 +382,7 @@ export default function StudentsPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }

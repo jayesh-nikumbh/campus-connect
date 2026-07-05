@@ -96,19 +96,34 @@ async function apiLogin(email, password) {
   try {
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
       body: JSON.stringify({ email, password }),
     })
 
     const data = await res.json()
 
-    if (!res.ok) {
+    if (!res.ok || data.success === false) {
       return { success: false, message: data.message || 'Login failed.' }
     }
 
-    return { success: true, user: data.user, token: data.token }
-  } catch {
-    return { success: false, message: 'Unable to reach server. Check your connection.' }
+    // Support flexible backend user & token formats
+    const rawUser = data.user || data.data?.user || (data.data && typeof data.data === 'object' ? data.data : data)
+    const token = data.token || data.accessToken || data.data?.token || ''
+
+    // Normalize user object fields
+    const user = rawUser && typeof rawUser === 'object' ? {
+      ...rawUser,
+      name: rawUser.name || rawUser.fullName || rawUser.username || rawUser.email?.split('@')[0] || 'User',
+      role: (rawUser.role || rawUser.userType || rawUser.roleName || 'admin').toString().toLowerCase(),
+    } : null
+
+    return { success: true, user, token }
+  } catch (err) {
+    console.error('API Login Error:', err)
+    return { success: false, message: 'Unable to process server response. Check console for details.' }
   }
 }
 
@@ -117,7 +132,10 @@ async function apiRegister(payload) {
   try {
     const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
       body: JSON.stringify(payload),
     })
 
@@ -138,7 +156,10 @@ async function apiForgotPassword(email) {
   try {
     const res = await fetch(`${API_BASE}/auth/forgot-password`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
+      },
       body: JSON.stringify({ email }),
     })
 

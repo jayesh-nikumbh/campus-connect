@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Award, Search, Download, Eye, Send, RotateCcw, CheckCircle2,
   Clock, ShieldCheck, X, Loader2, RefreshCw, Zap, GraduationCap, Copy, Palette, Save, Check
@@ -457,7 +458,7 @@ export default function CertificatesPage({ tokens }) {
       </div>
 
       {/* ── Certificate Preview Modal ── */}
-      {previewCert && (
+      {previewCert && createPortal(
         <div
           className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setPreviewCert(null) }}
@@ -564,10 +565,10 @@ export default function CertificatesPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* ── Verify Modal ── */}
-      {verifyOpen && (
+      {verifyOpen && createPortal(
         <div
           className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setVerifyOpen(false) }}
@@ -659,9 +660,9 @@ export default function CertificatesPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
       {/* ── Certificate Template Designer ── */}
-      {designerOpen && (
+      {designerOpen && createPortal(
         <div className="fixed inset-0 z-110 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div
             className="rounded-[24px] w-full flex overflow-hidden"
@@ -927,7 +928,7 @@ export default function CertificatesPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }

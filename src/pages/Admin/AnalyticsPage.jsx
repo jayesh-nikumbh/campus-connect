@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   FileText,
   FileSpreadsheet,
   Download,
   Loader2,
-  Calendar,
-  Users,
-  Award,
-  TrendingUp,
-  Percent,
-  CheckCircle
 } from 'lucide-react'
 import analyticsService from '../../services/analyticsService'
 import { BRAND } from '../../data/dashboardData'

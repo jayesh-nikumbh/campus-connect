@@ -24,9 +24,11 @@ export default function NotificationPanel({ open, onClose, notifications, onMark
 
       {/* Panel */}
       <div
-        className="fixed top-0 right-0 h-screen w-[380px] z-50 flex flex-col border-l transition-transform duration-350 ease-in-out"
+        className="fixed top-0 right-0 h-screen w-[380px] z-50 flex flex-col border-l transition-[transform,visibility] duration-350 ease-in-out"
         style={{
           transform: open ? 'translateX(0)' : 'translateX(100%)',
+          visibility: open ? 'visible' : 'hidden',
+          pointerEvents: open ? 'auto' : 'none',
           background: dark ? '#0c1829' : '#ffffff',
           borderColor: dark ? '#1a3050' : '#e2e8f0',
           boxShadow: dark ? '-12px 0 40px rgba(0,0,0,0.5)' : '-8px 0 40px rgba(0,0,0,0.1)',

@@ -3,7 +3,7 @@ import {
   QrCode, ScanLine, Activity, BarChart2,
   Users, UserX, Percent, Clock,
   Download, Search, Loader2, FileText,
-  CheckCircle, XCircle, RefreshCw, Wifi,
+  RefreshCw, Wifi,
   Share2, Printer, Camera, Play, ZapOff,
   ChevronLeft, ChevronRight, X
 } from 'lucide-react'
@@ -16,19 +16,19 @@ import { useToast } from '../../context/ToastContext'
 function QrPlaceholder({ size = 140, color = '#615FFF' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 140 140" fill="none">
-      <rect x="4" y="4" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none"/>
-      <rect x="18" y="18" width="28" height="28" rx="3" fill={color} opacity=".25"/>
-      <rect x="80" y="4" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none"/>
-      <rect x="94" y="18" width="28" height="28" rx="3" fill={color} opacity=".25"/>
-      <rect x="4" y="80" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none"/>
-      <rect x="18" y="94" width="28" height="28" rx="3" fill={color} opacity=".25"/>
-      <rect x="80" y="80" width="14" height="14" rx="2" fill={color}/>
-      <rect x="100" y="80" width="14" height="14" rx="2" fill={color}/>
-      <rect x="120" y="16" width="2" height="14" rx="2" fill={color}/>
-      <rect x="80" y="100" width="14" height="14" rx="2" fill={color}/>
-      <rect x="100" y="100" width="36" height="14" rx="2" fill={color}/>
-      <rect x="80" y="120" width="30" height="16" rx="2" fill={color}/>
-      <rect x="116" y="120" width="20" height="16" rx="2" fill={color}/>
+      <rect x="4" y="4" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none" />
+      <rect x="18" y="18" width="28" height="28" rx="3" fill={color} opacity=".25" />
+      <rect x="80" y="4" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none" />
+      <rect x="94" y="18" width="28" height="28" rx="3" fill={color} opacity=".25" />
+      <rect x="4" y="80" width="56" height="56" rx="6" stroke={color} strokeWidth="6" fill="none" />
+      <rect x="18" y="94" width="28" height="28" rx="3" fill={color} opacity=".25" />
+      <rect x="80" y="80" width="14" height="14" rx="2" fill={color} />
+      <rect x="100" y="80" width="14" height="14" rx="2" fill={color} />
+      <rect x="120" y="16" width="2" height="14" rx="2" fill={color} />
+      <rect x="80" y="100" width="14" height="14" rx="2" fill={color} />
+      <rect x="100" y="100" width="36" height="14" rx="2" fill={color} />
+      <rect x="80" y="120" width="30" height="16" rx="2" fill={color} />
+      <rect x="116" y="120" width="20" height="16" rx="2" fill={color} />
     </svg>
   )
 }
@@ -67,10 +67,10 @@ const generateTrendPath = (data) => {
 
 /* ─── Tabs config ─── */
 const TABS = [
-  { id: 'qr',      label: 'Generate QR',  Icon: QrCode   },
-  { id: 'scan',    label: 'Scan QR',       Icon: ScanLine  },
-  { id: 'monitor', label: 'Live Monitor',  Icon: Activity  },
-  { id: 'reports', label: 'Reports',       Icon: BarChart2 },
+  { id: 'qr', label: 'Generate QR', Icon: QrCode },
+  { id: 'scan', label: 'Scan QR', Icon: ScanLine },
+  { id: 'monitor', label: 'Live Monitor', Icon: Activity },
+  { id: 'reports', label: 'Reports', Icon: BarChart2 },
 ]
 
 export default function AttendancePage({ tokens }) {
@@ -79,21 +79,21 @@ export default function AttendancePage({ tokens }) {
   const showToast = useToast()
 
   /* shared state */
-  const [activeTab, setActiveTab]       = useState('qr')
-  const [records, setRecords]           = useState([])
-  const [loading, setLoading]           = useState(true)
+  const [activeTab, setActiveTab] = useState('qr')
+  const [records, setRecords] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState(ATTENDANCE_EVENTS[0].id)
   const [selectedSession, setSelectedSession] = useState('fullday')
 
   /* qr state */
-  const [qrGenerated, setQrGenerated]   = useState(false)
-  const [qrLoading, setQrLoading]       = useState(false)
-  const [countdown, setCountdown]       = useState(0)
-  const countdownRef                    = useRef(null)
+  const [qrGenerated, setQrGenerated] = useState(false)
+  const [qrLoading, setQrLoading] = useState(false)
+  const [countdown, setCountdown] = useState(0)
+  const countdownRef = useRef(null)
 
   /* scan tab state */
   const [scannerActive, setScannerActive] = useState(false)
-  const [recentScans, setRecentScans]   = useState([])
+  const [recentScans, setRecentScans] = useState([])
   const [scansLoading, setScansLoading] = useState(false)
 
   /* load recent scans */
@@ -129,7 +129,7 @@ export default function AttendancePage({ tokens }) {
   }
 
   /* live monitor chart state */
-  const [chartData, setChartData]       = useState([])
+  const [chartData, setChartData] = useState([])
   const [chartLoading, setChartLoading] = useState(false)
 
   const loadChart = async (evtId) => {
@@ -140,8 +140,8 @@ export default function AttendancePage({ tokens }) {
   }
 
   /* dept state */
-  const [deptData, setDeptData]         = useState([])
-  const [deptLoading, setDeptLoading]   = useState(false)
+  const [deptData, setDeptData] = useState([])
+  const [deptLoading, setDeptLoading] = useState(false)
 
   const loadDeptData = async (evtId) => {
     setDeptLoading(true)
@@ -151,9 +151,9 @@ export default function AttendancePage({ tokens }) {
   }
 
   /* table state */
-  const [search, setSearch]             = useState('')
+  const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('All')
-  const [updatingId, setUpdatingId]     = useState(null)
+  const [updatingId, setUpdatingId] = useState(null)
 
   /* fetch */
   const loadRecords = async (evtId) => {
@@ -172,25 +172,25 @@ export default function AttendancePage({ tokens }) {
 
   /* stats */
   const totalPresent = records.filter(r => r.status === 'Present').length
-  const totalAbsent  = records.filter(r => r.status === 'Absent').length
-  const totalLate    = records.filter(r => r.status === 'Late').length
+  const totalAbsent = records.filter(r => r.status === 'Absent').length
+  const totalLate = records.filter(r => r.status === 'Late').length
   const pct = records.length ? Math.round(((totalPresent + totalLate) / records.length) * 100) : 0
 
   const statsCards = [
-    { label: 'Total Present', value: totalPresent, Icon: Users,   bg: '#00BC7D' },
-    { label: 'Total Absent',  value: totalAbsent,  Icon: UserX,   bg: '#FB2C36' },
-    { label: 'Attendance %',  value: `${pct}%`,    Icon: Percent, bg: '#615FFF' },
-    { label: 'Late Entries',  value: totalLate,    Icon: Clock,   bg: '#FE9A00' },
+    { label: 'Total Present', value: totalPresent, Icon: Users, bg: '#00BC7D' },
+    { label: 'Total Absent', value: totalAbsent, Icon: UserX, bg: '#FB2C36' },
+    { label: 'Attendance %', value: `${pct}%`, Icon: Percent, bg: '#615FFF' },
+    { label: 'Late Entries', value: totalLate, Icon: Clock, bg: '#FE9A00' },
   ]
 
   /* pagination state */
-  const [currentPage, setCurrentPage]   = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(5)
 
   /* filter */
   const filtered = records.filter(r => {
     const sm = filterStatus === 'All' || r.status === filterStatus
-    const q  = search.toLowerCase()
+    const q = search.toLowerCase()
     const tm = !q || r.studentName.toLowerCase().includes(q) || r.rollNo.toLowerCase().includes(q)
     return sm && tm
   })
@@ -232,13 +232,13 @@ export default function AttendancePage({ tokens }) {
   const handleExport = () => {
     try {
       const headers = ['ID', 'Student', 'Roll No', 'Event', 'Check In', 'Check Out', 'Status']
-      const rows    = filtered.map(r => [r.id, r.studentName, r.rollNo, r.eventName || r.eventId, r.checkIn, r.checkOut, r.status])
-      const csv     = [headers, ...rows].map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
-      const blob    = new Blob([csv], { type: 'text/csv' })
-      const url     = URL.createObjectURL(blob)
-      const a       = document.createElement('a')
-      a.href        = url
-      a.download    = `attendance_${new Date().toISOString().split('T')[0]}.csv`
+      const rows = filtered.map(r => [r.id, r.studentName, r.rollNo, r.eventName || r.eventId, r.checkIn, r.checkOut, r.status])
+      const csv = [headers, ...rows].map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+      const blob = new Blob([csv], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `attendance_${new Date().toISOString().split('T')[0]}.csv`
       document.body.appendChild(a); a.click(); document.body.removeChild(a)
       showToast('Exported successfully!', 'success')
     } catch { showToast('Export failed.', 'error') }
@@ -255,13 +255,13 @@ export default function AttendancePage({ tokens }) {
     background: dark ? '#060e1c' : '#fff',
     color: dark ? '#e8f0fe' : '#0f172a',
   }
-  const label  = { color: dark ? '#7a98bb' : '#64748b' }
+  const label = { color: dark ? '#7a98bb' : '#64748b' }
 
   const badgeStyle = (s) => {
     const map = {
       Present: { bg: dark ? 'rgba(0,188,125,.15)' : '#e6fbf2', text: '#00BC7D' },
-      Absent:  { bg: dark ? 'rgba(251,44,54,.15)'  : '#fee2e2', text: '#FB2C36' },
-      Late:    { bg: dark ? 'rgba(254,154,0,.15)'  : '#fef3c7', text: '#d97706' },
+      Absent: { bg: dark ? 'rgba(251,44,54,.15)' : '#fee2e2', text: '#FB2C36' },
+      Late: { bg: dark ? 'rgba(254,154,0,.15)' : '#fef3c7', text: '#d97706' },
     }
     return map[s] || { bg: dark ? '#162640' : '#f1f5f9', text: dark ? '#7a98bb' : '#64748b' }
   }
@@ -412,7 +412,7 @@ export default function AttendancePage({ tokens }) {
                   <button
                     onClick={() => {
                       if (navigator.share) {
-                        navigator.share({ title: selectedEvtName, text: 'Attendance QR Code' }).catch(() => {})
+                        navigator.share({ title: selectedEvtName, text: 'Attendance QR Code' }).catch(() => { })
                       } else {
                         navigator.clipboard.writeText(window.location.href)
                         showToast('Link copied to clipboard!', 'success')
@@ -472,7 +472,7 @@ export default function AttendancePage({ tokens }) {
                       style={{ borderColor: BRAND }}
                     />
                     {/* corner brackets */}
-                    {[['top-0 left-0','border-t-2 border-l-2'],['top-0 right-0','border-t-2 border-r-2'],['bottom-0 left-0','border-b-2 border-l-2'],['bottom-0 right-0','border-b-2 border-r-2']].map(([pos, cls], i) => (
+                    {[['top-0 left-0', 'border-t-2 border-l-2'], ['top-0 right-0', 'border-t-2 border-r-2'], ['bottom-0 left-0', 'border-b-2 border-l-2'], ['bottom-0 right-0', 'border-b-2 border-r-2']].map(([pos, cls], i) => (
                       <div key={i} className={`absolute w-5 h-5 ${pos} ${cls} rounded-sm`} style={{ borderColor: BRAND }} />
                     ))}
                     {/* scanning line */}
@@ -534,7 +534,7 @@ export default function AttendancePage({ tokens }) {
 
             <div className="overflow-y-auto flex-1" style={{ maxHeight: 360 }}>
               {scansLoading ? (
-                [1,2,3,4].map(i => (
+                [1, 2, 3, 4].map(i => (
                   <div key={i} className="flex items-center gap-3 px-5 py-3 border-t" style={{ borderColor: dark ? '#1a3050' : '#f1f5f9' }}>
                     <div className="w-10 h-10 rounded-full animate-pulse" style={{ background: dark ? '#1a3050' : '#f1f5f9', flexShrink: 0 }} />
                     <div className="flex-1 space-y-2">
@@ -632,17 +632,17 @@ export default function AttendancePage({ tokens }) {
                 ))}
               </div>
             ) : (() => {
-              const MAX    = 220
+              const MAX = 220
               const yTicks = [0, 55, 110, 165, 220]
               const CHART_H = 240  // Fixed px height
 
               return (
                 <div className="w-full pl-8 pr-2 pt-4">
                   <div className="flex flex-col w-full">
-                    
+
                     {/* Chart area */}
                     <div className="relative w-full" style={{ height: CHART_H }}>
-                      
+
                       {/* Horizontal grid lines & Y-labels */}
                       {yTicks.map(t => (
                         <div
@@ -654,8 +654,8 @@ export default function AttendancePage({ tokens }) {
                             background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)',
                           }}
                         >
-                          <span 
-                            className="absolute text-[11px] font-semibold text-right pr-3" 
+                          <span
+                            className="absolute text-[11px] font-semibold text-right pr-3"
                             style={{ ...label, width: 40, left: -40, top: '50%', transform: 'translateY(-50%)' }}
                           >
                             {t}
@@ -774,7 +774,7 @@ export default function AttendancePage({ tokens }) {
                 </thead>
                 <tbody>
                   {loading ? (
-                    [1,2,3,4,5].map(i => (
+                    [1, 2, 3, 4, 5].map(i => (
                       <tr key={i} style={{ borderTop: `1px solid ${dark ? '#1a3050' : '#f1f5f9'}` }}>
                         {[160, 80, 80, 80, 70].map((w, j) => (
                           <td key={j} className="px-6 py-4">
@@ -823,7 +823,7 @@ export default function AttendancePage({ tokens }) {
 
             {/* ── Table Footer with Pagination Controls ── */}
             {!loading && (
-              <div 
+              <div
                 className="flex items-center justify-between flex-wrap gap-4 px-6 py-3.5 border-t"
                 style={{ borderColor: dark ? '#1a3050' : '#e2e8f0' }}
               >
@@ -959,8 +959,8 @@ export default function AttendancePage({ tokens }) {
                             background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)',
                           }}
                         >
-                          <span 
-                            className="absolute text-[11px] font-semibold text-right pr-3" 
+                          <span
+                            className="absolute text-[11px] font-semibold text-right pr-3"
                             style={{ ...label, width: 40, left: -40, top: '50%', transform: 'translateY(-50%)' }}
                           >
                             {t}

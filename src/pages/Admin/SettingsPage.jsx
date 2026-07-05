@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { User, Shield, Palette, Key, ShieldAlert, Cpu, Check, Loader2, Camera } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { User, Shield, Palette, Key, ShieldAlert, Check, Loader2, Camera } from 'lucide-react'
 import settingsService from '../../services/settingsService'
 import { useToast } from '../../context/ToastContext'
 import { useTheme } from '../../context/ThemeContext'

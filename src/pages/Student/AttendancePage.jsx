@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { QrCode, FileText, CheckCircle2, Activity, Clock, Search, TrendingUp, X, Users, User } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { QrCode, FileText, CheckCircle2, Activity, Clock, Search, TrendingUp, Users, User } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import { useToast } from '../../context/ToastContext'
 import studentService from '../../services/studentService'

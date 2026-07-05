@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import eventsService from '../../services/eventsService'
 import { useToast } from '../../context/ToastContext'
@@ -80,7 +80,7 @@ export default function EventsPage({ tokens }) {
 
   // Categories & Event Types
   const categories = ['All', 'Technical', 'Cultural', 'Seminar', 'Sports', 'Academic', 'Workshop']
-  const eventTypes = ['Individual', 'Team', 'Group', 'Both']
+  const eventTypes = ['Individual', 'Team', 'Both']
   const statuses = ['All', 'Upcoming', 'Draft', 'Ongoing', 'Completed', 'Cancelled']
 
   // Filter events

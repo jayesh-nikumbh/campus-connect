@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Search, Download, Plus, Eye, Pencil, Trash2, X, Loader2, Mail, Calendar, Shield, MapPin, Phone } from 'lucide-react'
 import { BRAND as DEFAULT_BRAND } from '../../data/dashboardData'
 import organizersService from '../../services/organizersService'
@@ -316,7 +317,7 @@ export default function OrganizersPage({ tokens }) {
       </div>
 
       {/* ── Add/Edit Modal ── */}
-      {modalOpen && (
+      {modalOpen && createPortal(
         <div
           className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setModalOpen(false) }}
@@ -457,10 +458,10 @@ export default function OrganizersPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* ── View Profile Modal ── */}
-      {viewOrg && (
+      {viewOrg && createPortal(
         <div
           className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setViewOrg(null) }}
@@ -541,10 +542,10 @@ export default function OrganizersPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
 
       {/* ── Delete Confirmation ── */}
-      {deleteTarget && (
+      {deleteTarget && createPortal(
         <div
           className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
           onClick={e => { if (e.target === e.currentTarget) setDeleteTarget(null) }}
@@ -583,7 +584,7 @@ export default function OrganizersPage({ tokens }) {
             </div>
           </div>
         </div>
-      )}
+      , document.body)}
     </div>
   )
 }

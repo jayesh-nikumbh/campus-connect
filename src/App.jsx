@@ -15,18 +15,17 @@ import PageTransition from './components/common/PageTransition'
 function AppRouter() {
   const { isLoggedIn, user } = useAuth()
 
-  const routeKey = !isLoggedIn ? 'login' : `${user?.role || 'user'}`
+  const userRole = (user?.role || user?.userType || '').toLowerCase()
+  const routeKey = !isLoggedIn ? 'login' : userRole || 'authenticated'
 
   return (
     <PageTransition pageKey={routeKey}>
       {!isLoggedIn ? (
         <LoginPage />
-      ) : user?.role === 'admin' ? (
-        <AdminDashboard />
-      ) : user?.role === 'student' ? (
+      ) : userRole === 'student' ? (
         <StudentDashboard />
       ) : (
-        <LoginPage />
+        <AdminDashboard />
       )}
     </PageTransition>
   )

@@ -90,7 +90,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="h-screen w-screen flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-hidden">
+    <div className="h-screen w-full max-w-full flex bg-[#f4f6fa] dark:bg-[#060e1c] font-[Manrope,sans-serif] transition-colors duration-300 relative overflow-hidden">
 
       {/* Mobile Sidebar Overlay Backdrop */}
       {isMobile && sidebarOpen && (
@@ -116,8 +116,11 @@ export default function StudentDashboard() {
 
       {/* Main Content Workspace */}
       <main
-        className="flex-1 flex flex-col h-screen overflow-hidden transition-[margin-left] duration-300 w-full"
-        style={{ marginLeft: isMobile ? 0 : (collapsed ? 70 : 240) }}
+        className="flex-1 flex flex-col h-screen overflow-hidden transition-[margin-left,width] duration-300"
+        style={{
+          marginLeft: isMobile ? 0 : (collapsed ? 70 : 240),
+          width: isMobile ? '100%' : `calc(100% - ${collapsed ? 70 : 240}px)`,
+        }}
       >
         <StudentTopBar
           activeNav={activeNav}

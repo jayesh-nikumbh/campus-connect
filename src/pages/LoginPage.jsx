@@ -218,13 +218,15 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const result = await authService.login(email, password)
-      if (result.success) {
+      if (result.success && result.user) {
         login(result.user, result.token)
-        showToast(`Welcome back, ${result.user.name}!`, 'success')
+        const userName = result.user?.name || result.user?.fullName || result.user?.email || 'User'
+        showToast(`Welcome back, ${userName}!`, 'success')
       } else {
         showToast(result.message || 'Login failed. Please try again.', 'error')
       }
-    } catch {
+    } catch (err) {
+      console.error('Login submit exception:', err)
       showToast('Something went wrong. Please try again.', 'error')
     } finally {
       setLoading(false)
