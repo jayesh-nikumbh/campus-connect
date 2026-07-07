@@ -12,24 +12,23 @@ import DashboardTopBar from '../../components/admin/adminDashboard/DashboardTopB
 import StatsCards from '../../components/admin/adminDashboard/StatsCards'
 import ChartsRow from '../../components/admin/adminDashboard/ChartsRow'
 import BottomRow from '../../components/admin/adminDashboard/BottomRow'
-import NotificationsPage from '../Admin/NotificationsPage'
-import EventsPage from '../Admin/EventsPage'
-import AttendancePage from '../Admin/AttendancePage'
-import ResultsPage from '../Admin/ResultsPage'
-import AnalyticsPage from '../Admin/AnalyticsPage'
-import CertificatesPage from '../Admin/CertificatesPage'
-import StudentsPage from '../Admin/StudentsPage'
-import OrganizersPage from '../Admin/OrganizersPage'
-import SettingsPage from '../Admin/SettingsPage'
+import NotificationsPage from './NotificationsPage'
+import EventsPage from './EventsPage'
+import AttendancePage from './AttendancePage'
+import ResultsPage from './ResultsPage'
+import AnalyticsPage from './AnalyticsPage'
+import CertificatesPage from './CertificatesPage'
+import StudentsPage from './StudentsPage'
+import SettingsPage from './SettingsPage'
 import NotificationPanel from '../../components/admin/adminDashboard/NotificationPanel'
 import PageTransition from '../../components/common/PageTransition'
 
-export default function AdminDashboard() {
+export default function OrganizerDashboard() {
   const { user, logout } = useAuth()
   const showToast = useToast()
   const { dark, toggleDark, accentColor } = useTheme()
   const [activeNav, setActiveNav] = useState(() => {
-    return localStorage.getItem('cc_admin_active_nav') || 'Dashboard'
+    return localStorage.getItem('cc_organizer_active_nav') || 'Dashboard'
   })
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -37,7 +36,7 @@ export default function AdminDashboard() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem('cc_admin_active_nav', activeNav)
+    localStorage.setItem('cc_organizer_active_nav', activeNav)
   }, [activeNav])
 
   useEffect(() => {
@@ -120,7 +119,7 @@ export default function AdminDashboard() {
 
   const confirmLogout = () => {
     setShowLogoutModal(false)
-    localStorage.removeItem('cc_admin_active_nav')
+    localStorage.removeItem('cc_organizer_active_nav')
     localStorage.removeItem('cc_attendance_active_tab')
     localStorage.removeItem('settings_active_tab')
     localStorage.removeItem('cc_viewing_event')
@@ -233,9 +232,6 @@ export default function AdminDashboard() {
             ) : activeNav === 'Students' ? (
               /* ─── Students Page ─── */
               <StudentsPage tokens={tokens} />
-            ) : activeNav === 'Organizers' ? (
-              /* ─── Organizers Page ─── */
-              <OrganizersPage tokens={tokens} />
             ) : activeNav === 'Settings' ? (
               /* ─── Settings Page ─── */
               <SettingsPage tokens={tokens} />
@@ -255,7 +251,7 @@ export default function AdminDashboard() {
                 {/* Page title + action buttons */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                   <div>
-                    <h1 className="text-[28px] font-extrabold text-slate-900 dark:text-slate-100 m-0 tracking-tight">Admin Dashboard</h1>
+                    <h1 className="text-[28px] font-extrabold text-slate-900 dark:text-slate-100 m-0 tracking-tight">Organizer Dashboard</h1>
                     <p className="text-[13px] text-slate-500 dark:text-[#7a98bb] mt-1">{today}</p>
                   </div>
                   <div className="flex flex-wrap gap-2">

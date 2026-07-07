@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import LoginPage from './pages/LoginPage'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import StudentDashboard from './pages/Student/StudentDashboard'
+import OrganizerDashboard from './pages/Organizer/OrganizerDashboard'
 
 import PageTransition from './components/common/PageTransition'
 
@@ -24,6 +25,8 @@ function AppRouter() {
         <LoginPage />
       ) : userRole === 'student' ? (
         <StudentDashboard />
+      ) : userRole === 'organizer' ? (
+        <OrganizerDashboard />
       ) : (
         <AdminDashboard />
       )}

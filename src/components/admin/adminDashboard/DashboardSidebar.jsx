@@ -116,11 +116,16 @@ export default function DashboardSidebar({
           </button>
         )}
 
-        {NAV.map(({ icon: Icon, label, badge }) => {
-          const active = activeNav === label
-          const displayBadge = label === 'Notifications' ? unreadCount : badge
-          const isCollapsedView = collapsed && !isMobile
-          return (
+        {(() => {
+          const filteredNav = NAV.filter(item => {
+            if (user?.role === 'organizer' && item.label === 'Organizers') return false
+            return true
+          })
+          return filteredNav.map(({ icon: Icon, label, badge }) => {
+            const active = activeNav === label
+            const displayBadge = label === 'Notifications' ? unreadCount : badge
+            const isCollapsedView = collapsed && !isMobile
+            return (
             <button
               key={label}
               onClick={() => {
@@ -158,7 +163,8 @@ export default function DashboardSidebar({
               )}
             </button>
           )
-        })}
+        })
+      })()}
       </nav>
 
       {/* Profile / Logout Footer */}
