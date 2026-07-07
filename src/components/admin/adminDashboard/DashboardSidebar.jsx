@@ -76,10 +76,10 @@ export default function DashboardSidebar({
             <span
               className="text-[15px] font-extrabold leading-none"
               style={{
-                color: logoHover ? BRAND : undefined,
+                color: logoHover ? BRAND : '#0F172A',
                 transition: 'color 0.25s ease',
               }}
-            >EventHub</span>
+            >CampusConnect</span>
             <span className="text-[11px] font-medium leading-none text-slate-400 dark:text-[#4a6a8a]">Admin Portal</span>
           </div>
         </div>

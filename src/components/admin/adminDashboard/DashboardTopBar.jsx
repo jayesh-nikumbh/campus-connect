@@ -91,7 +91,7 @@ export default function DashboardTopBar({
                 transition: 'color 0.25s ease',
               }}
             >
-              EventHub
+              CampusConnect
             </span>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function DashboardTopBar({
 
       {/* Breadcrumb */}
       <div className="hidden sm:flex items-center gap-1.5 text-[13px] text-slate-500 dark:text-[#4a6a8a] font-medium">
-        <span>EventHub</span>
+        <span>CampusConnect</span>
         <ChevronRight size={12} className="text-slate-300 dark:text-[#2a4060]" />
         <span className="text-slate-900 dark:text-[#e8f0fe] font-bold">{activeNav}</span>
       </div>

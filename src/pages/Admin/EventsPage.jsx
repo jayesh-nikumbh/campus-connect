@@ -32,7 +32,19 @@ export default function EventsPage({ tokens }) {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
-  const [viewingDetailEvent, setViewingDetailEvent] = useState(null)
+  const [viewingDetailEvent, setViewingDetailEvent] = useState(() => {
+    const saved = localStorage.getItem('cc_viewing_event')
+    return saved ? JSON.parse(saved) : null
+  })
+
+  useEffect(() => {
+    if (viewingDetailEvent) {
+      localStorage.setItem('cc_viewing_event', JSON.stringify(viewingDetailEvent))
+    } else {
+      localStorage.removeItem('cc_viewing_event')
+    }
+  }, [viewingDetailEvent])
+
   const [approvalConfirmModal, setApprovalConfirmModal] = useState({
     open: false,
     event: null,

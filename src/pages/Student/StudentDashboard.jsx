@@ -22,11 +22,17 @@ export default function StudentDashboard() {
   const showToast = useToast()
   const { dark, toggleDark, accentColor } = useTheme()
   
-  const [activeNav, setActiveNav] = useState('Dashboard')
+  const [activeNav, setActiveNav] = useState(() => {
+    return localStorage.getItem('cc_student_active_nav') || 'Dashboard'
+  })
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('cc_student_active_nav', activeNav)
+  }, [activeNav])
 
   // Service data states
   const [dashboardData, setDashboardData] = useState(null)
@@ -64,6 +70,7 @@ export default function StudentDashboard() {
 
   const confirmLogout = () => {
     setShowLogoutModal(false)
+    localStorage.removeItem('cc_student_active_nav')
     logout()
     showToast('Logged out successfully.', 'info')
   }

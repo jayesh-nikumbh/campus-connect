@@ -28,11 +28,17 @@ export default function AdminDashboard() {
   const { user, logout } = useAuth()
   const showToast = useToast()
   const { dark, toggleDark, accentColor } = useTheme()
-  const [activeNav, setActiveNav] = useState('Dashboard')
+  const [activeNav, setActiveNav] = useState(() => {
+    return localStorage.getItem('cc_admin_active_nav') || 'Dashboard'
+  })
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('cc_admin_active_nav', activeNav)
+  }, [activeNav])
 
   useEffect(() => {
     const handleResize = () => {
@@ -114,6 +120,11 @@ export default function AdminDashboard() {
 
   const confirmLogout = () => {
     setShowLogoutModal(false)
+    localStorage.removeItem('cc_admin_active_nav')
+    localStorage.removeItem('cc_attendance_active_tab')
+    localStorage.removeItem('settings_active_tab')
+    localStorage.removeItem('cc_viewing_event')
+    localStorage.removeItem('cc_event_detail_active_tab')
     logout()
     showToast('Logged out successfully.', 'info')
   }
