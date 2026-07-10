@@ -66,8 +66,8 @@ export default function OrganizerViewModal({
               <p className="text-[13px] font-bold m-0" style={{ color: tokens.txtPri }}>{viewOrg.department}</p>
             </div>
             <div className="rounded-xl p-3" style={{ background: tokens.hoverBg }}>
-              <p className="text-[11px] font-bold m-0 mb-0.5" style={{ color: tokens.txtSec }}>Events Managed</p>
-              <p className="text-[13px] font-bold m-0" style={{ color: tokens.txtPri }}>{viewOrg.eventsManaged}</p>
+              <p className="text-[11px] font-bold m-0 mb-0.5" style={{ color: tokens.txtSec }}>College ID</p>
+              <p className="text-[13px] font-bold m-0" style={{ color: tokens.txtPri }}>{viewOrg.collegeId || 'N/A'}</p>
             </div>
             <div className="rounded-xl p-3 col-span-2" style={{ background: tokens.hoverBg }}>
               <p className="text-[11px] font-bold m-0 mb-0.5" style={{ color: tokens.txtSec }}>Office Address</p>

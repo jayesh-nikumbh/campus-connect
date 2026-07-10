@@ -80,7 +80,9 @@ export default function DashboardSidebar({
                 transition: 'color 0.25s ease',
               }}
             >CampusConnect</span>
-            <span className="text-[11px] font-medium leading-none text-slate-400 dark:text-[#4a6a8a]">Admin Portal</span>
+            <span className="text-[11px] font-medium leading-none text-slate-400 dark:text-[#4a6a8a]">
+              {(user?.role || user?.userType || '').toLowerCase() === 'organizer' ? 'Organizer Portal' : 'Admin Portal'}
+            </span>
           </div>
         </div>
         {!collapsed && !isMobile && (

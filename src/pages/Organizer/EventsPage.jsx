@@ -12,6 +12,37 @@ import DeleteConfirmModal from '../../components/admin/adminEvent/DeleteConfirmM
 import ApprovalConfirmModal from '../../components/admin/adminEvent/ApprovalConfirmModal'
 import ImportModal from '../../components/admin/adminEvent/ImportModal'
 
+// Helpers to convert timezone offset-aware dates to offset-naive dates
+const formatLocalDateTimePicker = (dateTimeStr) => {
+  if (!dateTimeStr) return ''
+  let dateStr = dateTimeStr
+  // If it does not end with Z or has no offset, append Z so Date constructs it as UTC
+  if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-')) {
+    dateStr = dateStr + 'Z'
+  }
+  const d = new Date(dateStr)
+  if (isNaN(d.getTime())) return ''
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const hours = String(d.getHours()).padStart(2, '0')
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+const formatNaiveDateTime = (dateTimeStr) => {
+  if (!dateTimeStr) return null
+  const d = new Date(dateTimeStr)
+  if (isNaN(d.getTime())) return null
+  const year = d.getUTCFullYear()
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(d.getUTCDate()).padStart(2, '0')
+  const hours = String(d.getUTCHours()).padStart(2, '0')
+  const minutes = String(d.getUTCMinutes()).padStart(2, '0')
+  const seconds = String(d.getUTCSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
+
 export default function EventsPage({ tokens }) {
   const { dark } = tokens
   const BRAND = tokens?.brand || DEFAULT_BRAND
@@ -56,15 +87,16 @@ export default function EventsPage({ tokens }) {
     name: '',
     organizer: '',
     category: 'Technical',
-    eventType: 'Individual',
+    participationType: 'individual',
+    eventType: 'offline',
     approvalStatus: 'Approved',
     venue: '',
-    date: '',
-    time: '09:00',
+    startDateTime: '',
+    endDateTime: '',
     capacity: 500,
+    fees: 0,
     registrationsCount: 0,
     status: 'Upcoming',
-    qrAttendance: 'Disabled',
     description: '',
     registrationDeadline: '',
     banner: null,
@@ -126,21 +158,38 @@ export default function EventsPage({ tokens }) {
   // Open Create Modal
   const handleOpenCreate = () => {
     setSelectedEvent(null)
+    
+    // Default to tomorrow 09:00 to 17:00, and deadline to today 23:59
+    const now = new Date()
+    const tomorrow = new Date(now)
+    tomorrow.setDate(now.getDate() + 1)
+    
+    const formatDate = (d) => {
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    
+    const todayStr = formatDate(now)
+    const tomorrowStr = formatDate(tomorrow)
+
     setFormState({
       name: '',
       organizer: '',
       category: 'Technical',
-      eventType: 'Individual',
+      participationType: 'individual',
+      eventType: 'offline',
       approvalStatus: 'Approved',
       venue: '',
-      date: '',
-      time: '',
+      startDateTime: `${tomorrowStr}T09:00`,
+      endDateTime: `${tomorrowStr}T17:00`,
       capacity: 500,
+      fees: 0,
       registrationsCount: 0,
       status: 'Upcoming',
-      qrAttendance: 'Disabled',
       description: '',
-      registrationDeadline: '',
+      registrationDeadline: `${todayStr}T23:59`,
       banner: null,
     })
     setFormErrors({})
@@ -152,20 +201,21 @@ export default function EventsPage({ tokens }) {
     if (e) e.stopPropagation()
     setSelectedEvent(event)
     setFormState({
-      name: event.name,
-      organizer: event.organizer,
-      category: event.category,
-      eventType: event.eventType || 'Individual',
+      name: event.name || event.event_name || '',
+      organizer: event.organizer || '',
+      category: event.category || 'Technical',
+      participationType: event.participationType || event.participation_type || 'individual',
+      eventType: event.eventType || event.event_type || 'offline',
       approvalStatus: event.approvalStatus || 'Approved',
-      venue: event.venue,
-      date: event.date,
-      time: event.time || '09:00',
-      capacity: event.capacity,
-      registrationsCount: event.registrationsCount,
-      status: event.status,
-      qrAttendance: event.qrAttendance || 'Disabled',
+      venue: event.venue || '',
+      startDateTime: formatLocalDateTimePicker(event.start_datetime || event.startDateTime || event.date),
+      endDateTime: formatLocalDateTimePicker(event.end_datetime || event.endDateTime || event.date),
+      capacity: event.capacity || event.max_participants || 500,
+      fees: event.fees || 0,
+      registrationsCount: event.registrationsCount || 0,
+      status: event.status || 'Upcoming',
       description: event.description || '',
-      registrationDeadline: event.registrationDeadline || '',
+      registrationDeadline: formatLocalDateTimePicker(event.registration_deadline || event.reg_deadline || event.registrationDeadline),
       banner: event.banner || null,
     })
     setFormErrors({})
@@ -212,11 +262,7 @@ export default function EventsPage({ tokens }) {
   const handleConfirmApprovalStatus = async () => {
     const { event, targetStatus } = approvalConfirmModal
     if (!event) return
-    const payload = {
-      ...event,
-      approvalStatus: targetStatus,
-    }
-    const res = await eventsService.update(event.id, payload)
+    const res = await eventsService.approve(event.id, targetStatus, null)
     if (res.success) {
       showToast(`Event "${event.name}" ${targetStatus === 'Approved' ? 'approved' : 'rejected'} successfully.`, 'success')
       setApprovalConfirmModal({ open: false, event: null, targetStatus: 'Approved' })
@@ -232,15 +278,22 @@ export default function EventsPage({ tokens }) {
     if (!formState.name.trim()) errors.name = 'Event name is required'
     if (!formState.organizer.trim()) errors.organizer = 'Organizer is required'
     if (!formState.venue.trim()) errors.venue = 'Venue is required'
-    if (!formState.date) errors.date = 'Date is required'
+    if (!formState.startDateTime) errors.startDateTime = 'Start date & time is required'
+    if (!formState.endDateTime) errors.endDateTime = 'End date & time is required'
     if (formState.capacity <= 0) errors.capacity = 'Capacity must be greater than 0'
+    if (formState.fees < 0) errors.fees = 'Fees cannot be negative'
     if (formState.registrationsCount < 0) errors.registrationsCount = 'Registrations cannot be negative'
     if (parseInt(formState.registrationsCount, 10) > parseInt(formState.capacity, 10)) {
       errors.registrationsCount = 'Registrations cannot exceed capacity'
     }
-    if (formState.registrationDeadline && formState.date) {
-      if (new Date(formState.registrationDeadline) > new Date(formState.date)) {
-        errors.registrationDeadline = 'Deadline must be on or before the event date'
+    if (formState.registrationDeadline && formState.startDateTime) {
+      if (new Date(formState.registrationDeadline) > new Date(formState.startDateTime)) {
+        errors.registrationDeadline = 'Deadline must be on or before the event start date & time'
+      }
+    }
+    if (formState.startDateTime && formState.endDateTime) {
+      if (new Date(formState.startDateTime) > new Date(formState.endDateTime)) {
+        errors.endDateTime = 'End date & time must be on or after the start date & time'
       }
     }
     setFormErrors(errors)
@@ -251,10 +304,32 @@ export default function EventsPage({ tokens }) {
   const handleSaveEvent = async (isDraft = false) => {
     if (!validateForm()) return
     setSubmitting(true)
-    
+
+    // Convert local datetime-local values directly to offset-naive UTC format
+    const start_dt = formatNaiveDateTime(formState.startDateTime) || formatNaiveDateTime(new Date())
+    const end_dt = formatNaiveDateTime(formState.endDateTime) || start_dt
+    const reg_dl = formatNaiveDateTime(formState.registrationDeadline) || start_dt
+
     const payload = {
-      ...formState,
+      event_name: formState.name,
+      title: formState.name,
+      description: formState.description,
+      category: formState.category.toLowerCase(),
+      event_type: formState.eventType,
+      venue: formState.venue,
+      start_datetime: start_dt,
+      end_datetime: end_dt,
+      max_participants: parseInt(formState.capacity, 10),
+      capacity: parseInt(formState.capacity, 10),
+      participation_type: formState.participationType,
+      reg_date_time: formatNaiveDateTime(new Date()),
+      fees: parseInt(formState.fees, 10) || 0,
+      reg_deadline: reg_dl,
+      registration_deadline: reg_dl,
+      event_date: formState.startDateTime ? formState.startDateTime.split('T')[0] : new Date().toISOString().split('T')[0],
       status: isDraft ? 'Draft' : (formState.status === 'Draft' ? 'Upcoming' : formState.status),
+      organizer: formState.organizer,
+      banner: formState.banner
     }
 
     let res

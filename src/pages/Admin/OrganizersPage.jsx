@@ -28,9 +28,9 @@ export default function OrganizersPage({ tokens }) {
     name: '',
     department: 'Computer Science',
     email: '',
-    role: 'Organizer',
     phone: '',
-    office: ''
+    collegeId: '',
+    password: ''
   })
   const [errors, setErrors] = useState({})
 
@@ -75,9 +75,9 @@ export default function OrganizersPage({ tokens }) {
       name: '',
       department: 'Computer Science',
       email: '',
-      role: 'Organizer',
       phone: '',
-      office: ''
+      collegeId: '',
+      password: ''
     })
     setErrors({})
     setModalOpen(true)
@@ -89,9 +89,9 @@ export default function OrganizersPage({ tokens }) {
       name: o.name,
       department: o.department,
       email: o.email,
-      role: o.role,
       phone: o.phone || '',
-      office: o.office || ''
+      collegeId: o.collegeId || '',
+      password: ''
     })
     setErrors({})
     setModalOpen(true)
@@ -101,6 +101,12 @@ export default function OrganizersPage({ tokens }) {
     const errs = {}
     if (!form.name.trim()) errs.name = 'Required'
     if (!form.email.trim()) errs.email = 'Required'
+    if (!form.collegeId.trim()) errs.collegeId = 'Required'
+    if (!editing && !form.password.trim()) {
+      errs.password = 'Required'
+    } else if (!editing && form.password.length < 6) {
+      errs.password = 'Must be at least 6 characters'
+    }
     setErrors(errs)
     return !Object.keys(errs).length
   }
@@ -115,7 +121,7 @@ export default function OrganizersPage({ tokens }) {
       setModalOpen(false)
       load()
     } else {
-      showToast(res.message, 'error')
+      showToast(res.message || 'Failed to save organizer.', 'error')
     }
   }
 

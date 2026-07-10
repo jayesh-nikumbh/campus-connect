@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -27,17 +28,45 @@ export default function OrganizerDashboard() {
   const { user, logout } = useAuth()
   const showToast = useToast()
   const { dark, toggleDark, accentColor } = useTheme()
-  const [activeNav, setActiveNav] = useState(() => {
-    return localStorage.getItem('cc_organizer_active_nav') || 'Dashboard'
-  })
+  
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const getActiveNavFromPath = (pathname) => {
+    const segment = pathname.split('/').pop()?.toLowerCase()
+    switch (segment) {
+      case 'events':
+        return 'Events'
+      case 'results':
+        return 'Results'
+      case 'attendance':
+        return 'Attendance'
+      case 'analytics':
+        return 'Analytics'
+      case 'certificates':
+        return 'Certificates'
+      case 'students':
+        return 'Students'
+      case 'settings':
+        return 'Settings'
+      case 'notifications':
+        return 'Notifications'
+      case 'dashboard':
+      default:
+        return 'Dashboard'
+    }
+  }
+
+  const activeNav = getActiveNavFromPath(location.pathname)
+
+  const setActiveNav = (label) => {
+    navigate(`/organizer/${label.toLowerCase()}`)
+  }
+
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    localStorage.setItem('cc_organizer_active_nav', activeNav)
-  }, [activeNav])
 
   useEffect(() => {
     const handleResize = () => {

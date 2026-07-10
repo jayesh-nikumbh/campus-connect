@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -21,18 +22,35 @@ export default function StudentDashboard() {
   const { user, logout } = useAuth()
   const showToast = useToast()
   const { dark, toggleDark, accentColor } = useTheme()
+
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const getActiveNavFromPath = (pathname) => {
+    const segment = pathname.split('/').pop()?.toLowerCase()
+    switch (segment) {
+      case 'attendance':
+        return 'Attendance'
+      case 'events':
+        return 'Events'
+      case 'certificates':
+        return 'Certificates'
+      case 'dashboard':
+      default:
+        return 'Dashboard'
+    }
+  }
+
+  const activeNav = getActiveNavFromPath(location.pathname)
+
+  const setActiveNav = (label) => {
+    navigate(`/student/${label.toLowerCase()}`)
+  }
   
-  const [activeNav, setActiveNav] = useState(() => {
-    return localStorage.getItem('cc_student_active_nav') || 'Dashboard'
-  })
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    localStorage.setItem('cc_student_active_nav', activeNav)
-  }, [activeNav])
 
   // Service data states
   const [dashboardData, setDashboardData] = useState(null)

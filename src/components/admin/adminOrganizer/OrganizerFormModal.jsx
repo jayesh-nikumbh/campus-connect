@@ -80,18 +80,36 @@ export default function OrganizerFormModal({
             </div>
 
             <div>
-              <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Role Designation</label>
-              <select
-                value={form.role}
-                onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
-                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all appearance-none cursor-pointer"
-                style={inputStyle}
-              >
-                <option value="Organizer">Organizer</option>
-                <option value="Senior">Senior</option>
-              </select>
+              <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>College ID</label>
+              <input
+                value={form.collegeId}
+                onChange={e => setForm(p => ({ ...p, collegeId: e.target.value }))}
+                placeholder="e.g. COL1002"
+                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all"
+                style={{ ...inputStyle, borderColor: errors.collegeId ? '#ef4444' : tokens.border }}
+                onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
+                onBlur={e => { e.target.style.borderColor = errors.collegeId ? '#ef4444' : tokens.border; e.target.style.boxShadow = 'none' }}
+              />
+              {errors.collegeId && <span className="text-[11px] text-red-500 mt-1 block">{errors.collegeId}</span>}
             </div>
           </div>
+
+          {!editing && (
+            <div>
+              <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Password</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                placeholder="Enter password (min 6 chars)"
+                className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all"
+                style={{ ...inputStyle, borderColor: errors.password ? '#ef4444' : tokens.border }}
+                onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
+                onBlur={e => { e.target.style.borderColor = errors.password ? '#ef4444' : tokens.border; e.target.style.boxShadow = 'none' }}
+              />
+              {errors.password && <span className="text-[11px] text-red-500 mt-1 block">{errors.password}</span>}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -108,11 +126,11 @@ export default function OrganizerFormModal({
             </div>
 
             <div>
-              <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Phone (Optional)</label>
+              <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Phone</label>
               <input
                 value={form.phone}
                 onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                placeholder="e.g. +91 98765 00000"
+                placeholder="e.g. 9876543210"
                 className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all"
                 style={inputStyle}
                 onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
@@ -121,18 +139,7 @@ export default function OrganizerFormModal({
             </div>
           </div>
 
-          <div>
-            <label className="text-[12px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Office Room Location</label>
-            <input
-              value={form.office}
-              onChange={e => setForm(p => ({ ...p, office: e.target.value }))}
-              placeholder="e.g. Block A, Room 302"
-              className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all"
-              style={inputStyle}
-              onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}
-              onBlur={e => { e.target.style.borderColor = tokens.border; e.target.style.boxShadow = 'none' }}
-            />
-          </div>
+          
         </div>
 
         {/* Action Buttons */}

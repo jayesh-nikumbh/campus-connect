@@ -26,7 +26,7 @@ export default function SettingsPage({ tokens }) {
 
   useEffect(() => {
     const handleTabChange = () => {
-      const tab = localStorage.getItem('settings_active_tab') || sessionStorage.getItem('settings_active_tab')
+      const tab = sessionStorage.getItem('settings_active_tab') || localStorage.getItem('settings_active_tab')
       if (tab) setActiveTab(tab)
     }
     window.addEventListener('settings_tab_change', handleTabChange)
@@ -52,6 +52,15 @@ export default function SettingsPage({ tokens }) {
     accentColor: accentColor || '#615FFF',
     fontSize: fontSize || 'medium'
   })
+
+  useEffect(() => {
+    setAppearanceForm(prev => ({
+      ...prev,
+      themeMode: dark ? 'Dark' : 'Light',
+      accentColor: accentColor || '#615FFF',
+      fontSize: fontSize || 'medium'
+    }))
+  }, [dark, accentColor, fontSize])
 
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',

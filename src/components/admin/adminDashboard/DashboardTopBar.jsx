@@ -37,7 +37,8 @@ export default function DashboardTopBar({
     setDropdownOpen(false)
     if (setActiveNav) {
       setActiveNav('Settings')
-      // Optional: Store tab name in sessionStorage so SettingsPage can auto-switch to it
+      // Store tab name in both localStorage and sessionStorage so SettingsPage can auto-switch to it
+      localStorage.setItem('settings_active_tab', tabName)
       sessionStorage.setItem('settings_active_tab', tabName)
       // Trigger event or fast state change so SettingsPage updates if already mounted
       window.dispatchEvent(new Event('settings_tab_change'))
