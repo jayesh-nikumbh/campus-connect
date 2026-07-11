@@ -241,10 +241,10 @@ export default function EventsPage({ tokens }) {
     const res = await eventsService.delete(selectedEvent.id)
     if (res.success) {
       showToast(`Event ${selectedEvent.id} deleted successfully.`, 'success')
-      setDeleteConfirmOpen(false)
+      setDeleteConfirmOpen(false);
       loadEvents()
     } else {
-      showToast('Failed to delete event.', 'error')
+      showToast(res.message || 'Failed to delete event.', 'error')
     }
   }
 

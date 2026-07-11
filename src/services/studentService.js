@@ -187,7 +187,7 @@ async function apiFetchEventsData() {
 
 async function apiFetchCertificatesData() {
   try {
-    const res = await fetch(`${API_BASE}/certificates/my`, {
+    const res = await fetch(`${API_BASE}/certificates/me`, {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
         'ngrok-skip-browser-warning': 'true'

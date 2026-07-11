@@ -93,6 +93,23 @@ async function mockDeleteResult(id) {
   return { success: true }
 }
 
+async function mockFetchResultsByEvent(eventId) {
+  await new Promise(r => setTimeout(r, 300))
+  const results = getMockResults()
+  const events = getMockEvents()
+
+  const eventResults = results.filter(r => r.eventId === eventId)
+  const enriched = eventResults.map(res => {
+    const ev = events.find(e => e.id === res.eventId)
+    return {
+      ...res,
+      eventName: ev ? ev.name : res.eventName || 'Unknown Event'
+    }
+  })
+
+  return { success: true, results: enriched }
+}
+
 /* ── REAL API ────────────────────────────────────────────────── */
 async function apiFetchResults() {
   try {
@@ -163,9 +180,28 @@ async function apiDeleteResult(id) {
   }
 }
 
+async function apiFetchResultsByEvent(eventId) {
+  try {
+    const res = await fetch(`${API_BASE}/results/event/${eventId}`, {
+      headers: authHeaders(),
+    })
+    const data = await parseJSON(res)
+    if (!res.ok) {
+      return { success: false, message: data.message || 'Failed to fetch event results.' }
+    }
+    return { success: true, results: data.results || data.data || data || [] }
+  } catch (err) {
+    console.error('[resultsService] fetchResultsByEvent error:', err)
+    return { success: false, message: 'Server unreachable.' }
+  }
+}
+
 const resultsService = {
   fetchAll: () =>
     USE_MOCK ? mockFetchResults() : apiFetchResults(),
+
+  fetchByEventId: (eventId) =>
+    USE_MOCK ? mockFetchResultsByEvent(eventId) : apiFetchResultsByEvent(eventId),
 
   create: (payload) =>
     USE_MOCK ? mockCreateResult(payload) : apiCreateResult(payload),

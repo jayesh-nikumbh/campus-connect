@@ -305,7 +305,7 @@ export default function LoginPage() {
                     letterSpacing: logoHover ? '0.5px' : 'normal',
                   }}
                 >
-                  EventHub
+                  CampusConnect
                 </p>
                 <p className="text-white/60 text-[11px] font-medium">University Platform</p>
               </div>

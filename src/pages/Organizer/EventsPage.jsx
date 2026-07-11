@@ -244,7 +244,7 @@ export default function EventsPage({ tokens }) {
       setDeleteConfirmOpen(false)
       loadEvents()
     } else {
-      showToast('Failed to delete event.', 'error')
+      showToast(res.message || 'Failed to delete event.', 'error')
     }
   }
 

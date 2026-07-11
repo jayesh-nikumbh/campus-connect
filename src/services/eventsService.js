@@ -293,19 +293,25 @@ async function apiUpdateEvent(id, payload) {
 
 async function apiDeleteEvent(id) {
   try {
+    const token = getToken()
+    console.log('[eventsService] apiDeleteEvent token:', token)
     const res = await fetch(`${API_BASE}/events/${id}`, {
       method: 'DELETE',
-      headers: authHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
+      },
     })
     const data = await parseJSON(res)
     if (!res.ok) {
       console.error('[eventsService] deleteEvent failed:', res.status, data)
-      return { success: false }
+      return { success: false, message: data.message || data.detail || 'Failed to delete event.' }
     }
     return { success: true }
   } catch (err) {
     console.error('[eventsService] deleteEvent network error:', err)
-    return { success: false }
+    return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -496,6 +502,17 @@ const eventsService = {
   create: (payload) =>
     USE_MOCK ? mockCreateEvent(payload) : apiCreateEvent(payload),
 
+
+
+
+
+
+
+
+
+
+
+    
   update: (id, payload) =>
     USE_MOCK ? mockUpdateEvent(id, payload) : apiUpdateEvent(id, payload),
 
