@@ -188,7 +188,7 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
             {/* Green Success Banner */}
             <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-500/10 dark:bg-[#06241b] border border-emerald-500/30 text-emerald-600 dark:text-[#10b981]">
               <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <Check size={13} className="text-emerald-500 stroke-[3]" />
+                <Check size={13} className="text-emerald-500 stroke-3" />
               </div>
               <span className="text-xs font-bold">
                 QR Code scanned successfully!

@@ -23,7 +23,7 @@ export default function NotificationFormModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
+      className="fixed inset-0 z-9999 bg-black/60 backdrop-blur-sm flex items-center justify-center p-5"
       onClick={e => { if (e.target === e.currentTarget) { setSendOpen(false); resetForm() } }}
     >
       <div
