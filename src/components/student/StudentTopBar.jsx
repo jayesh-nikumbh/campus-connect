@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Sun, Moon, Bell, Menu, LogOut, Pencil, Lock, ChevronDown, ChevronUp } from 'lucide-react'
+import { Sun, Moon, Bell, Menu, LogOut, Pencil, Lock, ChevronDown, ChevronUp, CheckCheck} from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import studentService from '../../services/studentService'
 import EditProfileModal from './EditProfileModal'
@@ -136,14 +136,22 @@ export default function StudentTopBar({
                     )}
                   </div>
 
-                  {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllAsRead}
-                      className="text-[11px] font-bold text-slate-400 hover:text-indigo-400 bg-transparent border-none cursor-pointer transition-colors"
-                    >
-                      Mark all read
-                    </button>
-                  )}
+                  {/* Read All button — always visible, disabled when nothing unread */}
+                  <button
+                    id="notif-read-all-btn"
+                    onClick={unreadCount > 0 ? handleMarkAllAsRead : undefined}
+                    disabled={unreadCount === 0}
+                    className="w-8 h-8 text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-all bg-transparent cursor-pointer flex items-center justify-center duration-150"
+                    style={{
+                      background: unreadCount > 0 ? 'rgba(99,95,255,0.10)' : 'transparent',
+                      color: unreadCount > 0 ? '#615FFF' : (dark ? '#3d5470' : '#c0cad8'),
+                      borderColor: unreadCount > 0 ? 'rgba(99,95,255,0.25)' : (dark ? '#1a3050' : '#e2e8f0'),
+                      cursor: unreadCount > 0 ? 'pointer' : 'not-allowed',
+                    }}
+                    title='Mark all read'
+              >
+                    <CheckCheck size={14} />
+                  </button>
                 </div>
 
                 {/* Notification Items List */}
@@ -196,10 +204,8 @@ export default function StudentTopBar({
                 {/* Footer Action */}
                 <div className="px-4 py-3 border-t border-slate-100 dark:border-[#16263e] bg-slate-50/50 dark:bg-[#0f1b30] text-center">
                   <button
-                    onClick={() => {
-                      handleMarkAllAsRead()
-                      setNotifDropdown(false)
-                    }}
+                    id="notif-view-all-btn"
+                    onClick={() => setNotifDropdown(false)}
                     className="text-xs font-extrabold bg-transparent border-none cursor-pointer transition-colors"
                     style={{ color: BRAND }}
                   >

@@ -7,6 +7,15 @@ import studentNotificationsData from '../data/student/studentNotificationsData.j
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 const API_BASE = import.meta.env.VITE_API_BASE_URL
 
+// ── Mock registrations store (localStorage) ──
+const MOCK_REG_KEY = 'cc_student_event_registrations'
+function getMockEventRegistrations() {
+  try { return JSON.parse(localStorage.getItem(MOCK_REG_KEY) || '[]') } catch { return [] }
+}
+function saveMockEventRegistrations(list) {
+  localStorage.setItem(MOCK_REG_KEY, JSON.stringify(list))
+}
+
 // Local in-memory store for notifications, attendance & user profile
 let notificationsStore = [...studentNotificationsData]
 let attendanceStore = { ...studentAttendanceData }
@@ -102,14 +111,46 @@ async function mockChangeStudentPassword({ newPassword, confirmPassword }) {
   }
 }
 
-async function mockRegisterEvent(eventId) {
-  await new Promise(r => setTimeout(r, 300))
-  const event = studentEventsData.find(e => e.id === eventId)
-  if (event) {
-    event.registered = true
-    event.status = 'Registered'
+async function mockRegisterEvent(eventId, payload) {
+  await new Promise(r => setTimeout(r, 600))
+
+  // Check already registered
+  const existing = getMockEventRegistrations()
+  if (existing.find(r => r.eventId === eventId)) {
+    return { success: false, message: 'You are already registered for this event.' }
   }
-  return { success: true, message: 'Successfully registered for event!' }
+
+  // Simulate payment check
+  if (payload?.payment) {
+    // Mock: always success for simulation
+    const txnId = 'TXN' + Math.random().toString(36).slice(2, 10).toUpperCase()
+    payload.payment.transactionId = txnId
+    payload.payment.status = 'Success'
+  }
+
+  const reg = {
+    id: 'REG' + Math.random().toString(36).slice(2, 8).toUpperCase(),
+    eventId,
+    participationType: payload?.participationType || 'Solo',
+    teamName: payload?.teamName || null,
+    members: payload?.members || null,
+    payment: payload?.payment || null,
+    registeredAt: new Date().toISOString(),
+    status: 'Pending',
+  }
+
+  saveMockEventRegistrations([...existing, reg])
+
+  // Mark in memory
+  const event = studentEventsData.find(e => e.id === eventId)
+  if (event) { event.registered = true; event.status = 'Registered' }
+
+  return { success: true, message: 'Successfully registered!', data: reg }
+}
+
+async function mockFetchMyRegistrations() {
+  await new Promise(r => setTimeout(r, 200))
+  return { success: true, data: getMockEventRegistrations() }
 }
 
 async function mockScanAttendanceQR(qrCodeContent) {
@@ -300,7 +341,45 @@ async function apiChangeStudentPassword(payload) {
 }
 
 /* ── PUBLIC STUDENT SERVICE API ── */
+async function apiRegisterEvent(eventId, payload) {
+  try {
+    const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token')
+    const res = await fetch(`${API_BASE}/events/${eventId}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
+      },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json()
+    if (!res.ok) return { success: false, message: data.message || data.detail || 'Registration failed.' }
+    return { success: true, message: data.message || 'Registered successfully!', data: data.data || data }
+  } catch {
+    return { success: false, message: 'Server unreachable. Please try again.' }
+  }
+}
+
+async function apiFetchMyRegistrations() {
+  try {
+    const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token')
+    const res = await fetch(`${API_BASE}/registrations/my`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+    const data = await res.json()
+    if (!res.ok) return { success: false, message: data.message || 'Failed to fetch registrations.' }
+    return { success: true, data: data.data || data }
+  } catch {
+    return { success: false, message: 'Server unreachable.' }
+  }
+}
+
 const studentService = {
+
   fetchDashboardOverview: () => (USE_MOCK ? mockFetchDashboardOverview() : apiFetchAttendanceData()),
   fetchAttendanceData: () => (USE_MOCK ? mockFetchAttendanceData() : apiFetchAttendanceData()),
   fetchEventsData: () => (USE_MOCK ? mockFetchEventsData() : apiFetchEventsData()),
@@ -310,7 +389,8 @@ const studentService = {
   markAllNotificationsAsRead: () => (USE_MOCK ? mockMarkAllNotificationsAsRead() : apiMarkAllNotificationsAsRead()),
   updateStudentProfile: (data) => (USE_MOCK ? mockUpdateStudentProfile(data) : apiUpdateStudentProfile(data)),
   changeStudentPassword: (data) => (USE_MOCK ? mockChangeStudentPassword(data) : apiChangeStudentPassword(data)),
-  registerEvent: (eventId) => mockRegisterEvent(eventId),
+  registerEvent: (eventId, payload) => USE_MOCK ? mockRegisterEvent(eventId, payload) : apiRegisterEvent(eventId, payload),
+  fetchMyRegistrations: () => USE_MOCK ? mockFetchMyRegistrations() : apiFetchMyRegistrations(),
   scanAttendanceQR: (code) => (USE_MOCK ? mockScanAttendanceQR(code) : apiScanAttendanceQR(code)),
 }
 
