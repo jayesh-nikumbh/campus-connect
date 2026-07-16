@@ -308,6 +308,24 @@ export default function AttendancePage({ tokens }) {
           <h1 className="text-[28px] font-extrabold m-0 tracking-tight">Attendance Management</h1>
           <p className="text-[13px] mt-1 mb-0" style={label}>QR-based contactless attendance system</p>
         </div>
+
+        {/* Global Event Select Dropdown */}
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] font-bold uppercase tracking-wider" style={label}>Active Event:</span>
+          <select
+            value={selectedEvent}
+            onChange={e => {
+              setSelectedEvent(e.target.value)
+              setQrGenerated(false)
+            }}
+            className="px-4 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer border font-bold transition-all hover:opacity-90"
+            style={{ ...inp, minWidth: '220px' }}
+          >
+            {(eventsList || []).map(ev => (
+              <option key={ev.id} value={ev.id}>{ev.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* stats */}
