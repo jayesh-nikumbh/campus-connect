@@ -110,13 +110,21 @@ async function apiFetchMonthlyTrend(tab) {
 
 async function apiFetchRadarData() {
   try {
-    const res = await fetchWithAuth(`${API_BASE}/analytics/radar`)
+    const res = await fetchWithAuth(`${API_BASE}/analytics/engagement-radar`)
     const data = await parseJSON(res)
-    if (!res.ok) return { success: false, message: data.message || 'Failed to fetch radar data.' }
-    return { success: true, radar: data.radar || [] }
+    if (!res.ok) {
+      console.warn('[analyticsService] fetchRadarData failed, falling back to mock data.')
+      return mockFetchRadarData()
+    }
+    const raw = Array.isArray(data) ? data : (data.radar || data.data || data.metrics || [])
+    const formatted = raw.map(item => ({
+      axis: item.axis || item.name || item.metric || '',
+      value: Number(item.value !== undefined ? item.value : (item.score || 0))
+    }))
+    return { success: true, radar: formatted }
   } catch (err) {
-    console.error('[analyticsService] fetchRadarData error:', err)
-    return { success: false, message: 'Server unreachable.' }
+    console.error('[analyticsService] fetchRadarData error, falling back to mock data:', err)
+    return mockFetchRadarData()
   }
 }
 
