@@ -4,7 +4,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL
 import defaultSettings from '../data/settings.json'
 
 function authHeaders() {
-  const token = sessionStorage.getItem('cc_token')
+  const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token') || ''
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -79,7 +79,7 @@ async function apiFetch() {
 
 async function apiUpdateProfile(profileData) {
   try {
-    const res = await fetch(`${API_BASE}/settings/profile`, {
+    const res = await fetch(`${API_BASE}/admin/profile`, {
       method: 'PUT',
       headers: authHeaders(),
       body: JSON.stringify(profileData),

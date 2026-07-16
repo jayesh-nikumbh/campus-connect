@@ -110,7 +110,7 @@ export default function SettingsProfileTab({
             <label className="text-[11.5px] font-bold block mb-1.5" style={{ color: tokens.txtSec }}>Phone</label>
             <input
               value={profileForm.phone}
-              onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value }))}
+              onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
               className="w-full px-3.5 py-2.5 rounded-xl text-[13px] outline-none border transition-all"
               style={inputStyle}
               onFocus={e => { e.target.style.borderColor = BRAND; e.target.style.boxShadow = `0 0 0 3px ${BRAND}20` }}

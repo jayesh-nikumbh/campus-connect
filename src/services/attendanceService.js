@@ -4,7 +4,7 @@ import defaultAttendance from '../data/attendance.json'
 import { ATTENDANCE_EVENTS, RECENT_SCANS as DEFAULT_SCANS, LIVE_CHART_DATA as DEFAULT_CHART, DEPT_ATTENDANCE_DATA as DEFAULT_DEPT } from '../data/attendanceData'
 
 function authHeaders() {
-  const token = sessionStorage.getItem('cc_token')
+  const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token') || ''
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -126,6 +126,35 @@ async function mockGenerateQR(eventId, session) {
 }
 
 /* ── REAL API ──────────────────────────────────────────────────── */
+function mapAttendanceRecord(r) {
+  // Format datetime string to readable time e.g. "2026-07-16T16:08:00" → "04:08 PM"
+  const fmtTime = (dt) => {
+    if (!dt) return '-'
+    try {
+      return new Date(dt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+    } catch { return dt }
+  }
+
+  // Capitalize status e.g. "present" → "Present"
+  const fmtStatus = (s) => {
+    if (!s) return 'Present'
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()
+  }
+
+  return {
+    id: r.attendance_id || r.id,
+    studentName: r.student_name || r.full_name || r.name || r.studentName || r.registration_id?.slice(0, 8) || 'Student',
+    rollNo: r.roll_no || r.rollNo || r.college_id || r.student_id || 'N/A',
+    eventId: r.event_id || r.eventId || '',
+    eventName: r.event_name || r.eventName || '',
+    checkIn: fmtTime(r.check_in_time || r.checkIn),
+    checkOut: fmtTime(r.check_out_time || r.checkOut),
+    status: fmtStatus(r.attendance_status || r.status),
+    department: r.department || r.dept || '',
+    registrationId: r.registration_id || r.registrationId || '',
+  }
+}
+
 async function apiFetchAll(eventId) {
   try {
     const url = eventId && eventId !== 'ALL'
@@ -134,7 +163,9 @@ async function apiFetchAll(eventId) {
     const res = await fetch(url, { headers: authHeaders() })
     const data = await parseJSON(res)
     if (!res.ok) return { success: false, message: data.message || 'Failed to fetch attendance.' }
-    return { success: true, records: data.records || data.data || data || [] }
+    const raw = data.data || data.records || data || []
+    const records = Array.isArray(raw) ? raw.map(mapAttendanceRecord) : []
+    return { success: true, records }
   } catch (err) {
     console.error('[attendanceService] fetchAll error:', err)
     return { success: false, message: 'Server unreachable.' }
