@@ -100,9 +100,6 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
               scannedEventId = rawText
             }
           }
-
-          console.log('[QRScannerModal] scanned event_id:', scannedEventId, 'reg_id:', scannedRegId)
-
           // Find matching event name from ref (no re-render dependency)
           const matchingEvent = eventsListRef.current.find(e => String(e.id || e.event_id) === String(scannedEventId))
           const eventName = matchingEvent?.title || matchingEvent?.name || `Event (${scannedEventId})`
@@ -138,12 +135,10 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
           qrCodeSuccessCallback,
           () => { } // silent scan fails
         ).catch(err => {
-          console.error('[QRScannerModal] camera start error:', err)
           setScanError('Could not access camera. Please check camera permissions.')
         })
 
       } catch (err) {
-        console.error('[QRScannerModal] setup error:', err)
       }
     }, 150)
 
@@ -153,7 +148,6 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
         html5QrCode.stop().then(() => {
           html5QrCode.clear()
         }).catch(err => {
-          console.error('[QRScannerModal] cleanup error:', err)
         })
       }
     }

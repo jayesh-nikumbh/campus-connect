@@ -206,7 +206,7 @@ export default function StudentSidebar({
                   {user?.name || 'Arjun Sharma'}
                 </span>
                 <span className="text-[11px] font-semibold text-slate-400 dark:text-[#4a6a8a] truncate">
-                  {user?.department || 'Student'}
+                  Student
                 </span>
               </div>
             </div>

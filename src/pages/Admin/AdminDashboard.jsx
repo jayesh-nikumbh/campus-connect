@@ -98,19 +98,25 @@ export default function AdminDashboard() {
   const notifications = rawNotifications.map(enrichNotification)
   const unreadCount = notifications.filter(n => n.unread).length
 
-  // ── Load notifications from service (mock or real API)
   useEffect(() => {
     let cancelled = false
-    setNotifLoading(true)
-    notificationsService.fetchAll().then(res => {
-      if (cancelled) return
-      if (res.success) {
-        setRawNotifications(res.notifications)
-        setNotifStats(res.stats)
-      }
-      setNotifLoading(false)
-    })
-    return () => { cancelled = true }
+    const fetchNotifs = () => {
+      notificationsService.fetchAll().then(res => {
+        if (cancelled) return
+        if (res.success) {
+          setRawNotifications(res.notifications)
+          setNotifStats(res.stats)
+        }
+        setNotifLoading(false)
+      })
+    }
+
+    fetchNotifs()
+    const interval = setInterval(fetchNotifs, 8000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
   // ── Load dashboard stats from service

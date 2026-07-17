@@ -105,45 +105,108 @@ async function mockSend(payload) {
 // REAL API FUNCTIONS
 // ─────────────────────────────────────────────────────────────────
 
+function formatLocalTime(dateStr) {
+  if (!dateStr) return ''
+  try {
+    let cleanStr = dateStr
+    if (!cleanStr.endsWith('Z') && !cleanStr.includes('+') && !cleanStr.includes('-')) {
+      cleanStr += 'Z'
+    }
+    const date = new Date(cleanStr)
+    if (isNaN(date.getTime())) return dateStr
+    
+    return date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+  } catch (err) {
+    return dateStr
+  }
+}
+
+function getCategoryFromType(type) {
+  if (!type) return 'System'
+  const t = type.toLowerCase()
+  if (t.includes('registration')) return 'Registrations'
+  if (t.includes('attendance')) return 'Attendance'
+  if (t.includes('event') || t.includes('cancelled') || t.includes('warning') || t.includes('trending')) return 'Events'
+  if (t.includes('certificate')) return 'Certificates'
+  return 'System'
+}
+
+function mapNotification(n) {
+  const type = n.notification_type || n.type || 'system'
+  const category = n.category || getCategoryFromType(type)
+  return {
+    ...n,
+    id: n.notification_id || n.id,
+    type,
+    category,
+    title: n.title,
+    message: n.message,
+    unread: n.is_read !== undefined ? !n.is_read : (n.unread !== undefined ? n.unread : true),
+    time: n.created_at ? formatLocalTime(n.created_at) : (n.time || ''),
+    priority: n.priority || 'normal',
+  }
+}
+
 /**
  * GET /notifications
  * Fetches all notifications + stats from the backend.
  */
 async function apiFetchNotifications() {
   try {
-    const res = await fetch(`${API_BASE}/notifications`, {
+    const res = await fetch(`${API_BASE}/notifications/`, {
       method: 'GET',
       headers: authHeaders(),
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-            return { success: false, notifications: [], stats: {} }
+      return { success: false, notifications: [], stats: {} }
     }
-    return { success: true, notifications: data.notifications ?? [], stats: data.stats ?? {} }
+    const rawList = data.data?.notifications ?? data.stats?.notifications ?? data.notifications ?? []
+    const list = rawList.map(mapNotification)
+    return { success: true, notifications: list, stats: data.data ?? data.stats ?? {} }
   } catch (err) {
-        return { success: false, notifications: [], stats: {}, message: 'Server unreachable.' }
+    return { success: false, notifications: [], stats: {}, message: 'Server unreachable.' }
   }
 }
 
 /**
- * POST /notifications/mark-read
+ * PATCH /notifications/{notification_id}/read or /notifications/read-all
  * Marks one or more notifications as read.
- * @param {number[]} ids - array of notification IDs
+ * @param {string[]} ids - array of notification IDs
  */
 async function apiMarkRead(ids) {
   try {
-    const res = await fetch(`${API_BASE}/notifications/mark-read`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ ids }),
-    })
-    const data = await parseJSON(res)
-    if (!res.ok) {
-            return { success: false }
-    }
-    return { success: true }
-  } catch (err) {
+    if (!ids || ids.length === 0) return { success: true }
+
+    if (ids.length === 1) {
+      const id = ids[0]
+      const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+      })
+      if (!res.ok) {
         return { success: false }
+      }
+      return { success: true }
+    } else {
+      const res = await fetch(`${API_BASE}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+      })
+      if (!res.ok) {
+        return { success: false }
+      }
+      return { success: true }
+    }
+  } catch (err) {
+    return { success: false }
   }
 }
 
@@ -154,17 +217,17 @@ async function apiMarkRead(ids) {
  */
 async function apiDelete(id) {
   try {
-    const res = await fetch(`${API_BASE}/notifications/${id}`, {
+    const res = await fetch(`${API_BASE}/notifications/${id}/`, {
       method: 'DELETE',
       headers: authHeaders(),
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-            return { success: false }
+      return { success: false }
     }
     return { success: true }
   } catch (err) {
-        return { success: false }
+    return { success: false }
   }
 }
 

@@ -19,13 +19,20 @@ export default function EventsPage({ tokens }) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    studentService.fetchEventsData().then(res => {
-      if (cancelled) return
-      if (res.success) setEventsList(res.data)
-      setLoading(false)
-    })
-    return () => { cancelled = true }
+    const loadEvents = () => {
+      studentService.fetchEventsData().then(res => {
+        if (cancelled) return
+        if (res.success) setEventsList(res.data)
+        setLoading(false)
+      })
+    }
+
+    loadEvents()
+    const interval = setInterval(loadEvents, 10000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
   const handleRegisterClick = (event) => {

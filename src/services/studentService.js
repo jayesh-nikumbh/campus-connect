@@ -447,6 +447,55 @@ async function apiFetchCertificatesData() {
   }
 }
 
+function formatStudentLocalTime(dateStr) {
+  if (!dateStr) return ''
+  try {
+    let cleanStr = dateStr
+    if (!cleanStr.endsWith('Z') && !cleanStr.includes('+') && !cleanStr.includes('-')) {
+      cleanStr += 'Z'
+    }
+    const date = new Date(cleanStr)
+    if (isNaN(date.getTime())) return dateStr
+    
+    return date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+  } catch (err) {
+    return dateStr
+  }
+}
+
+function getStudentCategoryFromType(type) {
+  if (!type) return 'System'
+  const t = type.toLowerCase()
+  if (t.includes('registration')) return 'Registrations'
+  if (t.includes('attendance')) return 'Attendance'
+  if (t.includes('event') || t.includes('cancelled') || t.includes('warning') || t.includes('trending')) return 'Events'
+  if (t.includes('certificate')) return 'Certificates'
+  return 'System'
+}
+
+function mapStudentNotification(n) {
+  const type = n.notification_type || n.type || 'system'
+  const category = n.category || getStudentCategoryFromType(type)
+  return {
+    ...n,
+    id: n.notification_id || n.id,
+    type,
+    category,
+    title: n.title,
+    message: n.message,
+    unread: n.is_read !== undefined ? !n.is_read : (n.unread !== undefined ? n.unread : true),
+    time: n.created_at ? formatStudentLocalTime(n.created_at) : (n.time || ''),
+    priority: n.priority || 'normal',
+  }
+}
+
 async function apiFetchNotifications() {
   try {
     const res = await fetch(`${API_BASE}/notifications/`, {
@@ -458,9 +507,10 @@ async function apiFetchNotifications() {
     const data = await res.json()
     if (!res.ok) return mockFetchNotifications()
     const rawData = data.data || data
-    const list = Array.isArray(rawData) ? rawData : (rawData?.notifications || [])
+    const rawList = rawData?.stats?.notifications ?? rawData?.notifications ?? (Array.isArray(rawData) ? rawData : [])
+    const list = rawList.map(mapStudentNotification)
     return { success: true, data: list }
-  } catch {
+  } catch (err) {
     return mockFetchNotifications()
   }
 }
@@ -468,7 +518,7 @@ async function apiFetchNotifications() {
 async function apiMarkNotificationAsRead(id) {
   try {
     const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
         'ngrok-skip-browser-warning': 'true'
@@ -477,9 +527,10 @@ async function apiMarkNotificationAsRead(id) {
     const data = await res.json()
     if (!res.ok) return mockMarkNotificationAsRead(id)
     const rawData = data.data || data
-    const list = Array.isArray(rawData) ? rawData : (rawData?.notifications || [])
+    const rawList = rawData?.stats?.notifications ?? rawData?.notifications ?? (Array.isArray(rawData) ? rawData : [])
+    const list = rawList.map(mapStudentNotification)
     return { success: true, data: list }
-  } catch {
+  } catch (err) {
     return mockMarkNotificationAsRead(id)
   }
 }
@@ -487,7 +538,7 @@ async function apiMarkNotificationAsRead(id) {
 async function apiMarkAllNotificationsAsRead() {
   try {
     const res = await fetch(`${API_BASE}/notifications/read-all`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
         'ngrok-skip-browser-warning': 'true'
@@ -496,9 +547,10 @@ async function apiMarkAllNotificationsAsRead() {
     const data = await res.json()
     if (!res.ok) return mockMarkAllNotificationsAsRead()
     const rawData = data.data || data
-    const list = Array.isArray(rawData) ? rawData : (rawData?.notifications || [])
+    const rawList = rawData?.stats?.notifications ?? rawData?.notifications ?? (Array.isArray(rawData) ? rawData : [])
+    const list = rawList.map(mapStudentNotification)
     return { success: true, data: list }
-  } catch {
+  } catch (err) {
     return mockMarkAllNotificationsAsRead()
   }
 }

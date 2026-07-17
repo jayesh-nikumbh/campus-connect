@@ -77,30 +77,34 @@ export default function StudentTopBar({
   }, [])
 
   useEffect(() => {
-    studentService.fetchNotifications().then(res => {
-      if (res.success) {
-        setNotifications(res.data)
-      }
-    })
+    const fetchNotifs = () => {
+      studentService.fetchNotifications().then(res => {
+        if (res.success) {
+          setNotifications(res.data)
+        }
+      })
+    }
+
+    fetchNotifs()
+    const interval = setInterval(fetchNotifs, 8000)
+    return () => clearInterval(interval)
   }, [])
 
   const unreadCount = notifications.filter(n => n.unread).length
 
   const handleMarkAsRead = (id, e) => {
     e.stopPropagation()
-    studentService.markNotificationAsRead(id).then(res => {
-      if (res.success) {
-        setNotifications(res.data)
-      }
-    })
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, unread: false } : n)
+    )
+    studentService.markNotificationAsRead(id)
   }
 
   const handleMarkAllAsRead = () => {
-    studentService.markAllNotificationsAsRead().then(res => {
-      if (res.success) {
-        setNotifications(res.data)
-      }
-    })
+    setNotifications(prev =>
+      prev.map(n => ({ ...n, unread: false }))
+    )
+    studentService.markAllNotificationsAsRead()
   }
 
   const handleProfileUpdated = (updatedUser) => {
@@ -305,7 +309,7 @@ export default function StudentTopBar({
                       {profileData.name}
                     </h4>
                     <p className="text-xs font-semibold text-slate-500 dark:text-[#6c85a8] m-0 truncate">
-                      {profileData.college}
+                      {profileData.email}
                     </p>
                   </div>
                 </div>
