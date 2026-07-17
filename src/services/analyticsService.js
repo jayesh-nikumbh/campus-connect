@@ -101,8 +101,7 @@ async function apiFetchStats() {
     const certificates = certsRes.success ? (certsRes.certificates || []) : []
 
     if (events.length === 0) {
-      console.warn('[analyticsService] No events found, falling back to mock stats.')
-      return mockFetchStats()
+            return mockFetchStats()
     }
 
     // Fetch registrations and attendance for each event to aggregate them
@@ -190,8 +189,7 @@ async function apiFetchStats() {
 
     return { success: true, stats }
   } catch (err) {
-    console.error('[analyticsService] fetchStats error, falling back to mock:', err)
-    return mockFetchStats()
+        return mockFetchStats()
   }
 }
 
@@ -200,8 +198,7 @@ async function apiFetchMonthlyTrend(tab) {
     const res = await fetchWithAuth(`${API_BASE}/analytics/monthly?year=${new Date().getFullYear()}`)
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.warn('[analyticsService] fetchMonthlyTrend failed, falling back to mock.')
-      return mockFetchMonthlyTrend(tab)
+            return mockFetchMonthlyTrend(tab)
     }
     
     const raw = Array.isArray(data) ? data : (data.data || data.trend || [])
@@ -234,8 +231,7 @@ async function apiFetchMonthlyTrend(tab) {
     })
     return { success: true, trend: formatted }
   } catch (err) {
-    console.error('[analyticsService] fetchMonthlyTrend error, falling back to mock:', err)
-    return mockFetchMonthlyTrend(tab)
+        return mockFetchMonthlyTrend(tab)
   }
 }
 
@@ -244,8 +240,7 @@ async function apiFetchRadarData() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/engagement-radar`)
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.warn('[analyticsService] fetchRadarData failed, falling back to mock data.')
-      return mockFetchRadarData()
+            return mockFetchRadarData()
     }
     const raw = Array.isArray(data) ? data : (data.radar || data.data || data.metrics || [])
     const formatted = raw.map(item => ({
@@ -254,8 +249,7 @@ async function apiFetchRadarData() {
     }))
     return { success: true, radar: formatted }
   } catch (err) {
-    console.error('[analyticsService] fetchRadarData error, falling back to mock data:', err)
-    return mockFetchRadarData()
+        return mockFetchRadarData()
   }
 }
 
@@ -264,8 +258,7 @@ async function apiFetchCategories() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/categories-breakdown`)
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.warn('[analyticsService] fetchCategories failed, falling back to mock data.')
-      return mockFetchCategories()
+            return mockFetchCategories()
     }
     const raw = Array.isArray(data) ? data : (data.data || data.categories || [])
     const formatted = raw.map(item => {
@@ -282,8 +275,7 @@ async function apiFetchCategories() {
     })
     return { success: true, categories: formatted }
   } catch (err) {
-    console.error('[analyticsService] fetchCategories error, falling back to mock data:', err)
-    return mockFetchCategories()
+        return mockFetchCategories()
   }
 }
 
@@ -292,8 +284,7 @@ async function apiFetchDeptDistribution() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/department-distribution`)
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.warn('[analyticsService] fetchDeptDistribution failed, falling back to mock.')
-      return mockFetchDeptDistribution()
+            return mockFetchDeptDistribution()
     }
     
     const rawDepts = Array.isArray(data) ? data : (data.data || data.depts || [])
@@ -312,8 +303,7 @@ async function apiFetchDeptDistribution() {
     
     return { success: true, depts: formatted }
   } catch (err) {
-    console.error('[analyticsService] fetchDeptDistribution error, falling back to mock:', err)
-    return mockFetchDeptDistribution()
+        return mockFetchDeptDistribution()
   }
 }
 
@@ -324,8 +314,7 @@ async function apiFetchEventAnalytics(eventId) {
     if (!res.ok) return { success: false, message: data.message || 'Failed to fetch event analytics.' }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[analyticsService] fetchEventAnalytics error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -350,8 +339,7 @@ async function apiFetchRecentActivity() {
     const activities = Array.isArray(data) ? data : (data.activities || data.data || [])
     return { success: true, activities }
   } catch (err) {
-    console.error('[analyticsService] fetchRecentActivity error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 

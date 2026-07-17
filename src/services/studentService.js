@@ -316,13 +316,11 @@ async function apiFetchDashboardOverview() {
     let certificatesCount = 0
     try {
       const certRes = await apiFetchCertificatesData()
-      console.log('[studentService] certificates response:', certRes)
-      if (certRes.success && Array.isArray(certRes.data)) {
+            if (certRes.success && Array.isArray(certRes.data)) {
         certificatesCount = certRes.data.length
       }
     } catch (e) {
-      console.error('[studentService] Dashboard overview failed to fetch certificates:', e)
-    }
+          }
 
     // Fetch all events to map registrations to their details
     let eventsList = []
@@ -332,15 +330,13 @@ async function apiFetchDashboardOverview() {
         eventsList = evRes.data
       }
     } catch (e) {
-      console.error('[studentService] Dashboard overview failed to fetch events:', e)
-    }
+          }
 
     let registeredEventsList = []
     let rawRegs = []
     try {
       const regRes = await apiFetchMyRegistrations()
-      console.log('[studentService] registrations response:', regRes)
-      if (regRes.success && Array.isArray(regRes.data)) {
+            if (regRes.success && Array.isArray(regRes.data)) {
         rawRegs = regRes.data
         registeredEventsList = regRes.data.map(r => {
           const matchedEvent = eventsList.find(ev => String(ev.id) === String(r.event_id))
@@ -348,8 +344,7 @@ async function apiFetchDashboardOverview() {
         }).filter(Boolean)
       }
     } catch (e) {
-      console.error('[studentService] Dashboard overview failed to fetch registrations:', e)
-    }
+          }
 
     const data = {
       stats: {
@@ -376,11 +371,9 @@ async function apiFetchDashboardOverview() {
       rawRegistrations: rawRegs
     }
 
-    console.log('[studentService] apiFetchDashboardOverview final data:', data)
-    return { success: true, data }
+        return { success: true, data }
   } catch (err) {
-    console.error('[studentService] apiFetchDashboardOverview error:', err)
-    return { success: false, message: err.message || 'Error fetching dashboard data' }
+        return { success: false, message: err.message || 'Error fetching dashboard data' }
   }
 }
 
@@ -421,8 +414,7 @@ async function apiFetchEventsData() {
         }
       }
     } catch (e) {
-      console.error('[studentService] failed to fetch student registrations:', e)
-    }
+          }
 
     const mapped = eventsArray.map(e => {
       const mappedEvent = mapStudentEvent(e)
@@ -435,8 +427,7 @@ async function apiFetchEventsData() {
 
     return { success: true, data: mapped }
   } catch (err) {
-    console.error('[studentService] apiFetchEventsData error:', err)
-    return mockFetchEventsData()
+        return mockFetchEventsData()
   }
 }
 
@@ -537,8 +528,7 @@ async function apiUpdateStudentProfile(updatedData) {
     })
     const data = await res.json()
     if (!res.ok) {
-      console.error('[studentService] apiUpdateStudentProfile failed status:', res.status, data)
-      return { success: false, message: data.message || 'Failed to update profile.' }
+            return { success: false, message: data.message || 'Failed to update profile.' }
     }
     
     // Map backend user object back to frontend naming convention
@@ -552,8 +542,7 @@ async function apiUpdateStudentProfile(updatedData) {
     }
     return { success: true, message: data.message || 'Profile updated successfully!', data: mappedUser }
   } catch (err) {
-    console.error('[studentService] apiUpdateStudentProfile error:', err)
-    return mockUpdateStudentProfile(updatedData)
+        return mockUpdateStudentProfile(updatedData)
   }
 }
 
@@ -591,8 +580,7 @@ async function apiFetchProfile() {
     }
     return { success: true, data: mappedUser }
   } catch (err) {
-    console.error('[studentService] apiFetchProfile error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -663,21 +651,17 @@ async function apiRegisterEvent(eventId, payload) {
 async function apiFetchMyRegistrations() {
   try {
     const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token')
-    console.log('[studentService] apiFetchMyRegistrations token:', token)
-    const res = await fetch(`${API_BASE}/registrations/my`, {
+        const res = await fetch(`${API_BASE}/registrations/my`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'ngrok-skip-browser-warning': 'true',
       },
     })
-    console.log('[studentService] apiFetchMyRegistrations response status:', res.status)
-    const data = await res.json()
-    console.log('[studentService] apiFetchMyRegistrations response body:', data)
-    if (!res.ok) return { success: false, message: data.message || 'Failed to fetch registrations.' }
+        const data = await res.json()
+        if (!res.ok) return { success: false, message: data.message || 'Failed to fetch registrations.' }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[studentService] apiFetchMyRegistrations network error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -728,8 +712,7 @@ async function apiInitiatePayment(registrationId) {
     }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[studentService] apiInitiatePayment error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -751,8 +734,7 @@ async function apiConfirmPayment(paymentId, payload) {
     }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[studentService] apiConfirmPayment error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -772,8 +754,7 @@ async function apiFailPayment(paymentId) {
     }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[studentService] apiFailPayment error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -798,8 +779,7 @@ async function apiSelfCheckIn(registrationId, eventId) {
       payload.registration_id = registrationId
     }
 
-    console.log('[studentService] selfCheckIn payload:', payload)
-
+    
     const res = await fetch(`${API_BASE}/attendance/check-in`, {
       method: 'POST',
       headers: {
@@ -810,15 +790,13 @@ async function apiSelfCheckIn(registrationId, eventId) {
       body: JSON.stringify(payload)
     })
     const data = await res.json()
-    console.log('[studentService] selfCheckIn response:', res.status, data)
-    if (!res.ok) {
+        if (!res.ok) {
       const errMsg = data.message || data.detail || 'Check-in failed.'
       return { success: false, message: errMsg }
     }
     return { success: true, data: data.data || data }
   } catch (err) {
-    console.error('[studentService] apiSelfCheckIn error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 

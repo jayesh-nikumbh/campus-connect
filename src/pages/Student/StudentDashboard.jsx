@@ -60,12 +60,10 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log('[StudentDashboard] Mounted. VITE_USE_MOCK =', import.meta.env.VITE_USE_MOCK)
-    let cancelled = false
+        let cancelled = false
     setLoading(true)
     studentService.fetchDashboardOverview().then(res => {
-      console.log('[StudentDashboard] fetchDashboardOverview resolved:', res)
-      if (cancelled) return
+            if (cancelled) return
       if (res.success) {
         setDashboardData(res.data)
       }

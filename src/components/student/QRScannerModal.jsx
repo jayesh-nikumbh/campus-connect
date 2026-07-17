@@ -36,8 +36,7 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
       if (regRes.success) registrationsRef.current = regRes.data || []
       if (evRes.success) eventsListRef.current = evRes.data || []
     }).catch(err => {
-      console.error('[QRScannerModal] error pre-fetching data:', err)
-    })
+          })
 
     const t1 = setTimeout(() => {
       setStep(2)
@@ -65,8 +64,7 @@ export default function QRScannerModal({ isOpen, onClose, onAttendanceConfirmed,
               html5QrCode.clear()
             }
           } catch (stopErr) {
-            console.error('[QRScannerModal] error stopping camera:', stopErr)
-          }
+                      }
 
           // 2. Transition to Step 3: Verifying (loading)
           setStep(3)

@@ -167,8 +167,7 @@ async function apiFetchAll(eventId) {
     const records = Array.isArray(raw) ? raw.map(mapAttendanceRecord) : []
     return { success: true, records }
   } catch (err) {
-    console.error('[attendanceService] fetchAll error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -186,8 +185,7 @@ async function apiUpdateStatus(id, status) {
     if (!res.ok) return { success: false, message: data.message || 'Failed to update attendance.' }
     return { success: true, record: data.record || data.data || data }
   } catch (err) {
-    console.error('[attendanceService] updateStatus error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -202,8 +200,7 @@ async function apiMarkPresent(id) {
     if (!res.ok) return { success: false, message: data.message || 'Failed to mark present.' }
     return { success: true, record: data.record || data.data || data }
   } catch (err) {
-    console.error('[attendanceService] markPresent error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -214,8 +211,7 @@ async function apiFetchRecentScans() {
     if (!res.ok) return { success: false, message: data.message || 'Failed to fetch scans.' }
     return { success: true, scans: data.scans || [] }
   } catch (err) {
-    console.error('[attendanceService] fetchRecentScans error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -230,8 +226,7 @@ async function apiAddScan(studentName, rollNo, status) {
     if (!res.ok) return { success: false, message: data.message || 'Failed to add scan.' }
     return { success: true, scan: data.scan, scans: data.scans }
   } catch (err) {
-    console.error('[attendanceService] addScan error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -287,22 +282,19 @@ async function apiFetchLiveChart(eventId) {
     const data = await parseJSON(res)
     
     if (!res.ok) {
-      console.warn('[attendanceService] fetchLiveChart failed, trying fallback to mock.')
-      return mockFetchLiveChart(eventId)
+            return mockFetchLiveChart(eventId)
     }
 
     const raw = data.data || data.chart || data || []
     const mapped = mapHourlyTrend(raw)
     
     if (mapped.length === 0) {
-      console.warn('[attendanceService] mapped hourly data is empty, falling back to mock.')
-      return mockFetchLiveChart(eventId)
+            return mockFetchLiveChart(eventId)
     }
 
     return { success: true, chart: mapped, eventId }
   } catch (err) {
-    console.error('[attendanceService] fetchLiveChart error, falling back to mock:', err)
-    return mockFetchLiveChart(eventId)
+        return mockFetchLiveChart(eventId)
   }
 }
 
@@ -348,22 +340,19 @@ async function apiFetchDeptAttendance(eventId) {
     const data = await parseJSON(res)
     
     if (!res.ok) {
-      console.warn('[attendanceService] fetchDeptAttendance failed, trying fallback to mock.')
-      return mockFetchDeptAttendance(eventId)
+            return mockFetchDeptAttendance(eventId)
     }
 
     const raw = data.data || data.depts || data || []
     const mapped = mapDeptAttendance(raw)
 
     if (mapped.length === 0) {
-      console.warn('[attendanceService] mapped department data is empty, falling back to mock.')
-      return mockFetchDeptAttendance(eventId)
+            return mockFetchDeptAttendance(eventId)
     }
 
     return { success: true, depts: mapped, eventId }
   } catch (err) {
-    console.error('[attendanceService] fetchDeptAttendance error, falling back to mock:', err)
-    return mockFetchDeptAttendance(eventId)
+        return mockFetchDeptAttendance(eventId)
   }
 }
 
@@ -379,8 +368,7 @@ async function apiGenerateQR(eventId, session) {
     if (!res.ok) return { success: false, message: data.message || 'Failed to generate QR.' }
     return { success: true, qrData: data.qrData, payload: data.payload }
   } catch (err) {
-    console.error('[attendanceService] generateQR error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 

@@ -114,8 +114,7 @@ async function doRefresh() {
         }
       }
     } catch (err) {
-      console.warn('[apiClient] Refresh attempt failed, trying next format...', err)
-    }
+          }
   }
 
   return null

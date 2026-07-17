@@ -61,8 +61,7 @@ async function mockRegister(payload) {
   // Generate a mock code and save it in sessionStorage for verification
   const mockCode = String(Math.floor(100000 + Math.random() * 900000))
   sessionStorage.setItem(`mock_otp_${email.toLowerCase()}`, mockCode)
-  console.log(`Mock OTP for ${email}: ${mockCode}`)
-
+  
   // Add user
   const newUser = {
     id: userList.length + 1,
@@ -173,8 +172,7 @@ async function apiLogin(email, password) {
           }
         }
       } catch (meErr) {
-        console.error('Error fetching user profile:', meErr)
-      }
+              }
     }
 
     // Fallback user object if /me failed or returned nothing
@@ -188,8 +186,7 @@ async function apiLogin(email, password) {
 
     return { success: true, user, token, refreshToken }
   } catch (err) {
-    console.error('API Login Error:', err)
-    return { success: false, message: `API Login Error: ${err.message || err}` }
+        return { success: false, message: `API Login Error: ${err.message || err}` }
   }
 }
 
@@ -233,8 +230,7 @@ async function apiRegister(payload) {
     const rawUser = data.user || data.data?.user || (data.data && typeof data.data === 'object' ? data.data : data)
     return { success: true, user: rawUser, message: data.message || 'Registration successful!' }
   } catch (err) {
-    console.error('API Register Error:', err)
-    return { success: false, message: 'Unable to reach server. Check your connection.' }
+        return { success: false, message: 'Unable to reach server. Check your connection.' }
   }
 }
 
@@ -282,8 +278,7 @@ async function apiVerifyEmail(email, code) {
 
     return { success: true, message: data.message || 'Email verified successfully!' }
   } catch (err) {
-    console.error('API Verify Email Error:', err)
-    return { success: false, message: 'Unable to reach server. Check your connection.' }
+        return { success: false, message: 'Unable to reach server. Check your connection.' }
   }
 }
 
@@ -307,8 +302,7 @@ async function apiResendCode(email) {
 
     return { success: true, message: data.message || 'Verification code resent successfully!' }
   } catch (err) {
-    console.error('API Resend Code Error:', err)
-    return { success: false, message: 'Unable to reach server. Check your connection.' }
+        return { success: false, message: 'Unable to reach server. Check your connection.' }
   }
 }
 

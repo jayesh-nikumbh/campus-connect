@@ -109,8 +109,7 @@ async function apiFetchRegistrations() {
     }
     return { success: true, registrations: data.registrations || [] }
   } catch (err) {
-    console.error('[registrationsService] fetchRegistrations error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -127,8 +126,7 @@ async function apiUpdateStatus(id, status) {
     }
     return { success: true, registration: data.registration }
   } catch (err) {
-    console.error('[registrationsService] updateStatus error:', err)
-    return { success: false, message: 'Server unreachable.' }
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 

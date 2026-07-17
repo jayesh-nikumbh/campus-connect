@@ -157,8 +157,7 @@ export default function RegistrationModal({ event, onClose, onSuccess }) {
             userName = profileRes.data?.full_name || ''
           }
         } catch (e) {
-          console.warn('Could not fetch student profile for prefill', e)
-        }
+                  }
 
         try {
           const options = {
@@ -220,7 +219,7 @@ export default function RegistrationModal({ event, onClose, onSuccess }) {
   const maxMembers = (event.maxTeamSize || 5) - 1
 
   const modal = (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center px-4" style={{ fontFamily: 'Manrope, sans-serif' }}>
+    <div className="fixed inset-0 z-999 flex items-center justify-center px-4" style={{ fontFamily: 'Manrope, sans-serif' }}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 

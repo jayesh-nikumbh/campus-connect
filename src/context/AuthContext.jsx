@@ -67,8 +67,7 @@ export function AuthProvider({ children }) {
         })
       })
       .catch(err => {
-        console.warn('[AuthContext] Failed to sync profile with /auth/me:', err)
-      })
+              })
     }
   }, [session?.token])
 

@@ -117,13 +117,11 @@ async function apiFetchNotifications() {
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.error('[notificationsService] fetchAll failed:', res.status, data)
-      return { success: false, notifications: [], stats: {} }
+            return { success: false, notifications: [], stats: {} }
     }
     return { success: true, notifications: data.notifications ?? [], stats: data.stats ?? {} }
   } catch (err) {
-    console.error('[notificationsService] fetchAll network error:', err)
-    return { success: false, notifications: [], stats: {}, message: 'Server unreachable.' }
+        return { success: false, notifications: [], stats: {}, message: 'Server unreachable.' }
   }
 }
 
@@ -141,13 +139,11 @@ async function apiMarkRead(ids) {
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.error('[notificationsService] markRead failed:', res.status, data)
-      return { success: false }
+            return { success: false }
     }
     return { success: true }
   } catch (err) {
-    console.error('[notificationsService] markRead network error:', err)
-    return { success: false }
+        return { success: false }
   }
 }
 
@@ -164,13 +160,11 @@ async function apiDelete(id) {
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-      console.error('[notificationsService] delete failed:', res.status, data)
-      return { success: false }
+            return { success: false }
     }
     return { success: true }
   } catch (err) {
-    console.error('[notificationsService] delete network error:', err)
-    return { success: false }
+        return { success: false }
   }
 }
 
@@ -187,16 +181,23 @@ async function apiDelete(id) {
  */
 async function apiSend(payload) {
   try {
+    const formattedPayload = {
+      title: payload.title,
+      message: payload.message,
+      notification_type: payload.notification_type || 'system',
+    }
+    if (payload.user_id && payload.user_id !== 'all') {
+      formattedPayload.user_id = payload.user_id
+    }
     const res = await fetch(`${API_BASE}/notifications/broadcast`, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify(payload),
+      body: JSON.stringify(formattedPayload),
     })
     const data = await parseJSON(res)
     if (!res.ok) {
       const errMsg = data?.error || data?.message || 'Failed to send notification.'
-      console.error('[notificationsService] send failed:', res.status, errMsg)
-      return { success: false, message: errMsg }
+            return { success: false, message: errMsg }
     }
     return {
       success: true,
@@ -204,8 +205,7 @@ async function apiSend(payload) {
       sentAt: data.sentAt || null,
     }
   } catch (err) {
-    console.error('[notificationsService] send network error:', err)
-    return { success: false, message: 'Server unreachable. Please try again.' }
+        return { success: false, message: 'Server unreachable. Please try again.' }
   }
 }
 
