@@ -43,22 +43,14 @@ export default function CertificatesPage({ tokens, user }) {
 
   useEffect(() => {
     let cancelled = false
-    const loadCerts = () => {
-      studentService.fetchCertificatesData().then(res => {
-        if (cancelled) return
-        if (res.success) {
-          setCertificatesList(res.data)
-        }
-        setLoading(false)
-      })
-    }
-
-    loadCerts()
-    const interval = setInterval(loadCerts, 10000)
-    return () => {
-      cancelled = true
-      clearInterval(interval)
-    }
+    studentService.fetchCertificatesData().then(res => {
+      if (cancelled) return
+      if (res.success) {
+        setCertificatesList(res.data)
+      }
+      setLoading(false)
+    })
+    return () => { cancelled = true }
   }, [])
 
   return (

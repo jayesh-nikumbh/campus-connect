@@ -16,7 +16,6 @@ function authHeaders(extra = {}) {
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${getToken()}`,
-    'ngrok-skip-browser-warning': 'true',
     ...extra,
   }
 }

@@ -15,7 +15,6 @@ function authHeaders(extra = {}) {
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${getToken()}`,
-    'ngrok-skip-browser-warning': 'true',
     ...extra,
   }
 }
@@ -342,7 +341,6 @@ async function apiDeleteEvent(id) {
       headers: {
         'Content-Type': 'application/json',
         'authorization': `Bearer ${token}`,
-        'ngrok-skip-browser-warning': 'true',
       },
     })
     const data = await parseJSON(res)
@@ -571,7 +569,6 @@ async function apiPublishEvent(eventId) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
-        'ngrok-skip-browser-warning': 'true',
       },
     })
     const data = await parseJSON(res)
@@ -654,7 +651,6 @@ async function apiGetQRCodeBlob(eventId) {
     const res = await fetch(`${API_BASE}/events/${eventId}/qrcode`, {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'ngrok-skip-browser-warning': 'true',
       }
     })
     if (!res.ok) {

@@ -7,8 +7,7 @@ function authHeaders() {
   const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token') || ''
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    'ngrok-skip-browser-warning': 'true'
+    'Authorization': `Bearer ${token}`
   }
 }
 
@@ -282,19 +281,19 @@ async function apiFetchLiveChart(eventId) {
     const data = await parseJSON(res)
     
     if (!res.ok) {
-            return mockFetchLiveChart(eventId)
+            return { success: false, chart: [], message: 'Failed to fetch hourly chart.' }
     }
 
     const raw = data.data || data.chart || data || []
     const mapped = mapHourlyTrend(raw)
     
     if (mapped.length === 0) {
-            return mockFetchLiveChart(eventId)
+            return { success: false, chart: [], message: 'No hourly data available.' }
     }
 
     return { success: true, chart: mapped, eventId }
   } catch (err) {
-        return mockFetchLiveChart(eventId)
+        return { success: false, chart: [], message: 'Server unreachable.' }
   }
 }
 
@@ -340,19 +339,19 @@ async function apiFetchDeptAttendance(eventId) {
     const data = await parseJSON(res)
     
     if (!res.ok) {
-            return mockFetchDeptAttendance(eventId)
+            return { success: false, depts: [], message: 'Failed to fetch department attendance.' }
     }
 
     const raw = data.data || data.depts || data || []
     const mapped = mapDeptAttendance(raw)
 
     if (mapped.length === 0) {
-            return mockFetchDeptAttendance(eventId)
+            return { success: false, depts: [], message: 'No department data available.' }
     }
 
     return { success: true, depts: mapped, eventId }
   } catch (err) {
-        return mockFetchDeptAttendance(eventId)
+        return { success: false, depts: [], message: 'Server unreachable.' }
   }
 }
 

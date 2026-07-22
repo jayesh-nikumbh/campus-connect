@@ -7,8 +7,7 @@ function authHeaders() {
   const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token') || ''
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    'ngrok-skip-browser-warning': 'true'
+    'Authorization': `Bearer ${token}`
   }
 }
 
@@ -70,7 +69,7 @@ async function apiFetch() {
     const res = await fetch(`${API_BASE}/auth/me`, { headers: authHeaders() })
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockFetch()
+            return { success: false, message: 'Failed to fetch settings.' }
     }
     
     const user = data.data || {}
@@ -117,7 +116,7 @@ async function apiFetch() {
     }
     return { success: true, settings }
   } catch (err) {
-        return mockFetch()
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 
@@ -139,7 +138,7 @@ async function apiUpdateProfile(profileData) {
     })
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockUpdateProfile(profileData)
+            return { success: false, message: data.message || 'Failed to update profile.' }
     }
     
     const updatedProfile = data.data || {}
@@ -156,7 +155,7 @@ async function apiUpdateProfile(profileData) {
     }
     return { success: true, message: data.message || 'Profile updated successfully.', settings }
   } catch (err) {
-        return mockUpdateProfile(profileData)
+        return { success: false, message: 'Server unreachable.' }
   }
 }
 

@@ -29,6 +29,7 @@ const blobToBase64 = (blob) => {
 /* ─── Tabs config ─── */
 const TABS = [
   { id: 'qr', label: 'Generate QR', Icon: QrCode },
+  
   { id: 'monitor', label: 'Live Monitor', Icon: Activity },
   { id: 'reports', label: 'Reports', Icon: BarChart2 },
 ]
@@ -74,16 +75,10 @@ export default function AttendancePage({ tokens }) {
           setSelectedEvent(mapped[0].id)
         }
       } else {
-        setEventsList(ATTENDANCE_EVENTS)
-        if (ATTENDANCE_EVENTS.length > 0) {
-          setSelectedEvent(ATTENDANCE_EVENTS[0].id)
-        }
+        setEventsList([])
       }
     }).catch(err => {
-            setEventsList(ATTENDANCE_EVENTS)
-      if (ATTENDANCE_EVENTS.length > 0) {
-        setSelectedEvent(ATTENDANCE_EVENTS[0].id)
-      }
+            setEventsList([])
     })
   }, [])
 

@@ -86,7 +86,6 @@ async function doRefresh() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
           ...format.headers,
         },
         ...(format.body ? { body: format.body } : {}),
@@ -131,7 +130,6 @@ async function doRefresh() {
 export async function fetchWithAuth(url, options = {}) {
   const makeHeaders = (token) => ({
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
     ...options.headers,
     'Authorization': `Bearer ${token}`,
   })
@@ -169,7 +167,6 @@ export function authHeaders(extra = {}) {
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${getAccessToken()}`,
-    'ngrok-skip-browser-warning': 'true',
     ...extra,
   }
 }

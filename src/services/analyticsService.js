@@ -18,8 +18,7 @@ function authHeaders() {
   const token = sessionStorage.getItem('cc_token') || sessionStorage.getItem('token') || ''
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    'ngrok-skip-browser-warning': 'true'
+    'Authorization': `Bearer ${token}`
   }
 }
 
@@ -101,7 +100,7 @@ async function apiFetchStats() {
     const certificates = certsRes.success ? (certsRes.certificates || []) : []
 
     if (events.length === 0) {
-            return mockFetchStats()
+            return { success: false, stats: [], message: 'No events found.' }
     }
 
     // Fetch registrations and attendance for each event to aggregate them
@@ -189,7 +188,7 @@ async function apiFetchStats() {
 
     return { success: true, stats }
   } catch (err) {
-        return mockFetchStats()
+        return { success: false, stats: [], message: 'Server unreachable.' }
   }
 }
 
@@ -198,7 +197,7 @@ async function apiFetchMonthlyTrend(tab) {
     const res = await fetchWithAuth(`${API_BASE}/analytics/monthly?year=${new Date().getFullYear()}`)
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockFetchMonthlyTrend(tab)
+            return { success: false, trend: [], message: 'Failed to fetch monthly trend.' }
     }
     
     const raw = Array.isArray(data) ? data : (data.data || data.trend || [])
@@ -231,7 +230,7 @@ async function apiFetchMonthlyTrend(tab) {
     })
     return { success: true, trend: formatted }
   } catch (err) {
-        return mockFetchMonthlyTrend(tab)
+        return { success: false, trend: [], message: 'Server unreachable.' }
   }
 }
 
@@ -240,7 +239,7 @@ async function apiFetchRadarData() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/engagement-radar`)
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockFetchRadarData()
+            return { success: false, radar: [], message: 'Failed to fetch radar data.' }
     }
     const raw = Array.isArray(data) ? data : (data.radar || data.data || data.metrics || [])
     const formatted = raw.map(item => ({
@@ -249,7 +248,7 @@ async function apiFetchRadarData() {
     }))
     return { success: true, radar: formatted }
   } catch (err) {
-        return mockFetchRadarData()
+        return { success: false, radar: [], message: 'Server unreachable.' }
   }
 }
 
@@ -258,7 +257,7 @@ async function apiFetchCategories() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/categories-breakdown`)
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockFetchCategories()
+            return { success: false, categories: [], message: 'Failed to fetch categories.' }
     }
     const raw = Array.isArray(data) ? data : (data.data || data.categories || [])
     const formatted = raw.map(item => {
@@ -275,7 +274,7 @@ async function apiFetchCategories() {
     })
     return { success: true, categories: formatted }
   } catch (err) {
-        return mockFetchCategories()
+        return { success: false, categories: [], message: 'Server unreachable.' }
   }
 }
 
@@ -284,7 +283,7 @@ async function apiFetchDeptDistribution() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/department-distribution`)
     const data = await parseJSON(res)
     if (!res.ok) {
-            return mockFetchDeptDistribution()
+            return { success: false, depts: [], message: 'Failed to fetch department distribution.' }
     }
     
     const rawDepts = Array.isArray(data) ? data : (data.data || data.depts || [])
@@ -303,7 +302,7 @@ async function apiFetchDeptDistribution() {
     
     return { success: true, depts: formatted }
   } catch (err) {
-        return mockFetchDeptDistribution()
+        return { success: false, depts: [], message: 'Server unreachable.' }
   }
 }
 
@@ -367,12 +366,12 @@ async function apiFetchGrowth() {
     const res = await fetchWithAuth(`${API_BASE}/analytics/growth`)
     const data = await parseJSON(res)
     if (!res.ok) {
-      return mockFetchGrowth()
+      return { success: false, data: [], message: 'Failed to fetch growth data.' }
     }
     const raw = Array.isArray(data) ? data : (data.data || data.growth || [])
     return { success: true, data: raw }
   } catch (err) {
-    return mockFetchGrowth()
+    return { success: false, data: [], message: 'Server unreachable.' }
   }
 }
 

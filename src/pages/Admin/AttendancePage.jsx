@@ -74,16 +74,10 @@ export default function AttendancePage({ tokens }) {
           setSelectedEvent(mapped[0].id)
         }
       } else {
-        setEventsList(ATTENDANCE_EVENTS)
-        if (ATTENDANCE_EVENTS.length > 0) {
-          setSelectedEvent(ATTENDANCE_EVENTS[0].id)
-        }
+        setEventsList([])
       }
     }).catch(err => {
-            setEventsList(ATTENDANCE_EVENTS)
-      if (ATTENDANCE_EVENTS.length > 0) {
-        setSelectedEvent(ATTENDANCE_EVENTS[0].id)
-      }
+            setEventsList([])
     })
   }, [])
 

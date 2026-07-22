@@ -182,7 +182,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   // Sign Up state
-  const [isSignUp, setIsSignUp] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(() => !!localStorage.getItem('pendingVerificationEmail'))
   const [logoHover, setLogoHover] = useState(false)
 
   // Forgot password modal
